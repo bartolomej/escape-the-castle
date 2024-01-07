@@ -315,9 +315,10 @@ export class GLTFLoader {
                 options.children.push(node);
             }
         }
-        if (gltfSpec.camera !== undefined) {
-            options.camera = await this.loadCamera(gltfSpec.camera);
-        }
+        // TODO: Migrate camera importing
+        // if (gltfSpec.camera !== undefined) {
+        //     options.camera = await this.loadCamera(gltfSpec.camera);
+        // }
         if (gltfSpec.mesh !== undefined) {
             options.mesh = await this.loadMesh(gltfSpec.mesh);
         }

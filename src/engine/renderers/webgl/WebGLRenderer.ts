@@ -13,6 +13,7 @@ import {TextureSampler} from "../../textures/TextureSampler";
 import {Texture} from "../../textures/Texture";
 import {Material} from "../../materials/Material";
 import {BufferView} from "../../core/BufferView";
+import {Camera} from "../../cameras/Camera";
 
 // This class prepares all assets for use with WebGL
 // and takes care of rendering.
@@ -226,9 +227,8 @@ export class WebGLRenderer {
     }
   }
 
-  render (scene: Scene, camera: Object3D) {
+  render (scene: Scene, camera: Camera) {
     const gl = this.gl;
-    const {projection} = camera.camera;
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -255,11 +255,11 @@ export class WebGLRenderer {
           this.renderLight(object, lightCount)
           lightCount++;
         }
-        
+
         this.renderObject3D(object, {
           viewModel: viewModelMatrix,
           model: modelMatrix,
-          projection
+          projection: camera.projection
         });
       },
       onLeave: () => {

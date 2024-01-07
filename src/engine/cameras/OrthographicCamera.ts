@@ -19,21 +19,21 @@ export class OrthographicCamera extends Camera {
     public near: number;
     public far: number;
 
-    constructor(options?: OrthographicCameraOptions) {
+    constructor(options: OrthographicCameraOptions = {}) {
         super(options);
 
-        this.left = options.left || -1;
-        this.right = options.right || 1;
-        this.bottom = options.bottom || -1;
-        this.top = options.top || 1;
-        this.near = options.near || -1;
-        this.far = options.far || 1;
+        this.left = options.left ?? -1;
+        this.right = options.right ?? 1;
+        this.bottom = options.bottom ?? -1;
+        this.top = options.top ?? 1;
+        this.near = options.near ?? -1;
+        this.far = options.far ?? 1;
         this.projection = mat4.create();
 
-        this.updateMatrix();
+        this.updateProjection();
     }
 
-    updateMatrix() {
+    updateProjection() {
         mat4.ortho(this.projection,
             this.left, this.right,
             this.bottom, this.top,

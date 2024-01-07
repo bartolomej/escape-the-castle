@@ -7,7 +7,6 @@ import {Pane} from 'tweakpane';
 import fragment from "./shaders/curl.glsl";
 import { WebGLRenderer } from "../engine/renderers/webgl/WebGLRenderer";
 import { Scene } from "../engine/Scene";
-import { Object3D } from "../engine/core/Object3D";
 import { GLTFLoader } from "../engine/loaders/GLTFLoader";
 import FirstPersonControls from "../engine/controls/FirstPersonControls";
 import { PerspectiveCamera } from "../engine/cameras/PerspectiveCamera";
@@ -20,12 +19,15 @@ class App extends Application {
 
   private renderer: WebGLRenderer;
   private scene: Scene;
-  public camera: Object3D;
+  public camera: PerspectiveCamera;
   private loader: GLTFLoader;
   private controls: FirstPersonControls;
   private shaderMaterial: ShaderMaterial;
 
-  monkey = {
+  cameraConfig = {
+    fov: 2,
+  }
+  monkeyConfig = {
     rotationX: 0,
     rotationY: 0,
     rotationZ: 0
@@ -64,12 +66,10 @@ class App extends Application {
     //   wall.mesh?.setMaterial(this.shaderMaterial);
     // })
 
-    this.camera = new Object3D({
+    this.camera = new PerspectiveCamera({
+      fov: this.cameraConfig.fov,
       translation: [0,2,0],
-      camera: new PerspectiveCamera({
-        fov: 2
-      })
-    })
+    });
     this.controls = new FirstPersonControls(this.camera);
 
     this.renderer = new WebGLRenderer(this.gl, {clearColor: [1,1,1,1]});
@@ -87,11 +87,14 @@ class App extends Application {
     const monkey = this.scene.findNodesByName("Suzanne")[0];
     quat.fromEuler(
         monkey.rotation,
-        this.monkey.rotationX,
-        this.monkey.rotationY,
-        this.monkey.rotationZ
+        this.monkeyConfig.rotationX,
+        this.monkeyConfig.rotationY,
+        this.monkeyConfig.rotationZ
     );
     monkey.updateMatrix();
+
+    this.camera.fov = this.cameraConfig.fov;
+    this.camera.updateProjection();
 
     this.controls?.update(dt);
     this.shaderMaterial?.setUniform("time", t);
@@ -108,11 +111,9 @@ class App extends Application {
     const h = this.canvas.clientHeight;
     const aspectRatio = w / h;
 
-    if (this.camera) {
-      if (this.camera.camera instanceof PerspectiveCamera) {
-        this.camera.camera.aspect = aspectRatio;
-      }
-      this.camera.camera.updateMatrix();
+    if (this.camera && this.camera instanceof PerspectiveCamera) {
+      this.camera.aspect = aspectRatio;
+      this.camera.updateMatrix();
     }
   }
 
@@ -140,17 +141,21 @@ function main () {
     title: "Enable",
   });
   enableCameraButton.on("click", () => app.enableCamera());
+  cameraFolder.addBinding(app.cameraConfig, "fov", {
+    min: 0,
+    max: 3
+  });
 
   const monkeyFolder = pane.addFolder({ title: "Monkey"});
-  monkeyFolder.addBinding(app.monkey, "rotationX", {
+  monkeyFolder.addBinding(app.monkeyConfig, "rotationX", {
     min: -90,
     max: 90
   });
-  monkeyFolder.addBinding(app.monkey, "rotationY", {
+  monkeyFolder.addBinding(app.monkeyConfig, "rotationY", {
     min: -90,
     max: 90
   });
-  monkeyFolder.addBinding(app.monkey, "rotationZ", {
+  monkeyFolder.addBinding(app.monkeyConfig, "rotationZ", {
     min: -90,
     max: 90
   });

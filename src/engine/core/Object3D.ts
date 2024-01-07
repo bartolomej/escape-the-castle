@@ -1,5 +1,4 @@
 import { vec3, mat4, quat } from 'gl-matrix';
-import {Camera} from "../cameras/Camera";
 import {Mesh} from "./Mesh";
 
 export type Object3DOptions = Partial<Omit<Object3D, "parent">>
@@ -11,7 +10,6 @@ export class Object3D {
     children: Object3D[];
     name: string;
     parent: Object3D | null;
-    camera: Camera;
     mesh: Mesh;
 
     constructor(options: Object3DOptions = {}) {
@@ -36,7 +34,6 @@ export class Object3D {
             this.updateMatrix();
         }
 
-        this.camera = options.camera || null;
         this.mesh = options.mesh || null;
 
         this.children = options.children ?? [];
