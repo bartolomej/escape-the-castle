@@ -13,6 +13,7 @@ import FirstPersonControls from "../engine/controls/FirstPersonControls";
 import { PerspectiveCamera } from "../engine/cameras/PerspectiveCamera";
 import ShaderMaterial from "../engine/materials/ShaderMaterial";
 import { Light } from "../engine/lights/Light";
+import {AmbientLight} from "../engine/lights/AmbientLight";
 
 class App extends Application {
 
@@ -32,10 +33,8 @@ class App extends Application {
 
     this.scene.nodes = this.scene.nodes.filter(node => !node.name.includes("Light"));
 
-    this.scene.addNode(new Object3D({
-      light: new Light({
-        attenuatuion: [1,0,0.01],
-      })
+    this.scene.addNode(new AmbientLight({
+      color: [100, 50, 50]
     }));
 
     this.shaderMaterial = new ShaderMaterial({
@@ -51,9 +50,9 @@ class App extends Application {
         }
       }
     });
-    this.scene.findNodes(".*").forEach(wall => {
-      wall.mesh?.setMaterial(this.shaderMaterial);
-    })
+    // this.scene.findNodes(".*").forEach(wall => {
+    //   wall.mesh?.setMaterial(this.shaderMaterial);
+    // })
 
     this.camera = new Object3D({
       translation: [0,2,0],

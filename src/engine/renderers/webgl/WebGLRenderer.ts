@@ -216,10 +216,11 @@ export class WebGLRenderer {
   }
 
   prepareScene (scene: Scene) {
+    let lights = scene.findNodes(node => node instanceof Light);
     // rebuild programs if complete scene info is known on startup
     this.preparePrograms({
       // TODO: I think our shaders break for >1 lights
-      nLights: scene.getTotalLights()
+      nLights: lights.length
     })
     for (const node of scene.nodes) {
       this.prepare3dObject(node);
@@ -245,7 +246,7 @@ export class WebGLRenderer {
       onEnter: object => {
         matrixStack.push(mat4.clone(matrix));
         mat4.mul(matrix, matrix, object.matrix);
-        if (object.light instanceof Light) {
+        if (object instanceof Light) {
           this.renderLight(object, lightCount)
           lightCount++;
         }
@@ -257,8 +258,7 @@ export class WebGLRenderer {
     });
   }
 
-  renderLight(object: Object3D, lightIndex: number) {
-    const { light } = object;
+  renderLight(light: Light, lightIndex: number) {
     const { gl, defaultProgram: program } = this;
 
     let color = vec3.clone(light.ambientColor);
@@ -271,7 +271,7 @@ export class WebGLRenderer {
     vec3.scale(color, color, 1.0 / 255.0);
     gl.uniform3fv(program.uniforms['uSpecularColor[' + lightIndex + ']'], color);
     let position: vec3 = [0, 0, 0];
-    mat4.getTranslation(position, object.matrix);
+    mat4.getTranslation(position, light.matrix);
 
     gl.uniform3fv(program.uniforms['uLightPosition[' + lightIndex + ']'], position);
     gl.uniform1f(program.uniforms['uShininess[' + lightIndex + ']'], light.shininess);

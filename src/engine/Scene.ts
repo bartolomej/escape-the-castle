@@ -32,39 +32,7 @@ export class Scene {
         options?.onLeave?.(object)
     }
 
-    getTotalLights() {
-        let totalLights = 0;
-        this.traverse({
-            onEnter: (object) => {
-                if (object.light) {
-                    totalLights++
-                }
-            }
-        });
-        return totalLights;
-    }
-
-    getNodesWithProperty(property: string) {
-        const nodes: Object3D[] = [];
-        this.traverse({
-            onEnter: (node) => {
-                if (node.hasOwnProperty(property)) {
-                    nodes.push(node);
-                }
-            }
-        });
-        return nodes;
-    }
-
-    getCameraNodes() {
-        return this.getNodesWithProperty("camera")
-    }
-
-    getLightNodes() {
-        return this.getNodesWithProperty("light");
-    }
-
-    findNodes(regex: string) {
+    findNodesByName(regex: string) {
         const nodes: Object3D[] = [];
         this.traverse({
             onEnter: (object) => {
@@ -76,14 +44,16 @@ export class Scene {
         return nodes;
     }
 
-    findNode(regex: string) {
-        return this.findNodes(regex)[0];
+    findNodes(filter: (object: Object3D) => boolean) {
+        const nodes: Object3D[] = [];
+        this.traverse({
+            onEnter: (object) => {
+                if (filter(object)) {
+                    nodes.push(object);
+                }
+            }
+        });
+        return nodes;
     }
 
-    clone(): Scene {
-        return new Scene({
-            ...this,
-            nodes: this.nodes.map(node => node.clone()),
-        });
-    }
 }
