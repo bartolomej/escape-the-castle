@@ -19,8 +19,7 @@
   "devDependencies": {
     "@babel/core": "^7.7.7",
     "@babel/preset-env": "^7.7.7",
-    "@tweakpane/core": "^1.0.8",
-    "@types/dat.gui": "^0.7.7",
+    "@tweakpane/core": "^2.0.3",
     "@types/howler": "^2.2.4",
     "@types/jest": "^24.9.0",
     "@types/node": "^14.18.5",
@@ -46,9 +45,9 @@
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
-    "dat.gui": "^0.7.7",
     "gl-matrix": "^3.4.3",
     "howler": "^2.2.3",
-    "node-fetch": "^2.6.6"
+    "node-fetch": "^2.6.6",
+    "tweakpane": "^4.0.3"
   }
 }

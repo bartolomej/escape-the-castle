@@ -229,31 +229,42 @@ export class WebGLRenderer {
 
   render (scene: Scene, camera: Object3D) {
     const gl = this.gl;
+    const {projection} = camera.camera;
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    let matrix = mat4.create();
-    let {projection} = camera.camera;
-    let matrixStack: mat4[] = [];
+    let viewModelMatrix = mat4.create();
+    let modelMatrix = mat4.create();
+    let modelViewMatrixStack: mat4[] = [];
+    let modelMatrixStack: mat4[] = [];
 
     const viewMatrix = camera.getGlobalTransform();
     mat4.invert(viewMatrix, viewMatrix);
-    mat4.copy(matrix, viewMatrix);
+    mat4.copy(viewModelMatrix, viewMatrix);
 
     let lightCount = 0;
 
     scene.traverse({
       onEnter: object => {
-        matrixStack.push(mat4.clone(matrix));
-        mat4.mul(matrix, matrix, object.matrix);
+        modelViewMatrixStack.push(mat4.clone(viewModelMatrix));
+        modelMatrixStack.push(mat4.clone(modelMatrix));
+
+        mat4.mul(viewModelMatrix, viewModelMatrix, object.matrix);
+        mat4.mul(modelMatrix, modelMatrix, object.matrix);
+
         if (object instanceof Light) {
           this.renderLight(object, lightCount)
           lightCount++;
         }
-        this.renderObject3D(object, matrix, projection)
+        this.renderObject3D(object, {
+          viewModel: viewModelMatrix,
+          model: modelMatrix,
+          projection
+        })
       },
       onLeave: () => {
-        matrix = matrixStack.pop();
+        viewModelMatrix = modelViewMatrixStack.pop();
+        modelMatrix = modelMatrixStack.pop();
       }
     });
   }
@@ -278,22 +289,31 @@ export class WebGLRenderer {
     gl.uniform3fv(program.uniforms['uLightAttenuation[' + lightIndex + ']'], light.attenuatuion);
   }
 
-  renderObject3D (object3d: Object3D, mvpMatrix: mat4, projection: mat4) {
+  renderObject3D (object3d: Object3D, matrices: {
+    viewModel: mat4,
+    projection: mat4,
+    model: mat4
+  }) {
     const program = this.defaultProgram;
-    this.gl.uniformMatrix4fv(program.uniforms.uViewModel, false, mvpMatrix);
+    this.gl.uniformMatrix4fv(program.uniforms.uModel, false, matrices.model);
+    this.gl.uniformMatrix4fv(program.uniforms.uViewModel, false, matrices.viewModel);
 
     if (object3d.mesh) {
       for (const primitive of object3d.mesh.primitives) {
-        this.renderPrimitive(primitive, mvpMatrix, projection);
+        this.renderPrimitive(primitive, matrices);
       }
     }
 
     for (const child of object3d.children) {
-      this.renderObject3D(child, mvpMatrix, projection);
+      this.renderObject3D(child, matrices);
     }
   }
 
-  renderPrimitive (primitive: Primitive, mvpMatrix: mat4, projection: mat4) {
+  renderPrimitive (primitive: Primitive, matrices: {
+    viewModel: mat4,
+    projection: mat4,
+    model: mat4
+  }) {
     const gl = this.gl;
 
     const vao = this.glObjects.get(primitive);
@@ -307,8 +327,8 @@ export class WebGLRenderer {
     gl.useProgram(program.program);
 
     // set standard uniform values
-    gl.uniformMatrix4fv(program.uniforms.uProjection, false, projection);
-    gl.uniformMatrix4fv(program.uniforms.uViewModel, false, mvpMatrix);
+    gl.uniformMatrix4fv(program.uniforms.uProjection, false, matrices.projection);
+    gl.uniformMatrix4fv(program.uniforms.uViewModel, false, matrices.viewModel);
     gl.uniform1i(program.uniforms.uTexture, 0);
 
     if (material instanceof ShaderMaterial) {
