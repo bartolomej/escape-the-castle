@@ -1,6 +1,6 @@
 import "./style.css"
 import Application from "../engine/Application";
-import { GUI } from 'dat.gui';
+import {Pane} from 'tweakpane';
 
 // shaders
 // @ts-ignore
@@ -12,8 +12,8 @@ import { GLTFLoader } from "../engine/loaders/GLTFLoader";
 import FirstPersonControls from "../engine/controls/FirstPersonControls";
 import { PerspectiveCamera } from "../engine/cameras/PerspectiveCamera";
 import ShaderMaterial from "../engine/materials/ShaderMaterial";
-import { Light } from "../engine/lights/Light";
 import {AmbientLight} from "../engine/lights/AmbientLight";
+import {quat} from "gl-matrix";
 
 class App extends Application {
 
@@ -23,7 +23,12 @@ class App extends Application {
   private loader: GLTFLoader;
   private controls: FirstPersonControls;
   private shaderMaterial: ShaderMaterial;
-  private fftSize: number = 32;
+
+  monkey = {
+    rotationX: 0,
+    rotationY: 0,
+    rotationZ: 0
+  }
 
   async start() {
     this.loader = new GLTFLoader();
@@ -46,7 +51,7 @@ class App extends Application {
         },
         frequencies: {
           type: "1fv",
-          value: new Array(this.fftSize).fill(0)
+          value: []
         }
       }
     });
@@ -70,6 +75,19 @@ class App extends Application {
   }
 
   update (dt: number, t: number) {
+    if (!this.scene) {
+      return;
+    }
+
+    const monkey = this.scene.findNodesByName("Suzanne")[0];
+    quat.fromEuler(
+        monkey.rotation,
+        this.monkey.rotationX,
+        this.monkey.rotationY,
+        this.monkey.rotationZ
+    );
+    monkey.updateMatrix();
+
     this.controls?.update(dt);
     this.shaderMaterial?.setUniform("time", t);
   }
@@ -109,10 +127,28 @@ class App extends Application {
 function main () {
   const canvas = document.querySelector('canvas');
   const app = new App(canvas);
-  const gui = new GUI();
-  gui.add(app, 'enableCamera');
-  // @ts-ignore
-  window.app = app;
+
+  const pane = new Pane();
+
+  const cameraFolder = pane.addFolder({title: "Camera"})
+  const enableCameraButton = cameraFolder.addButton({
+    title: "Enable",
+  });
+  enableCameraButton.on("click", () => app.enableCamera());
+
+  const monkeyFolder = pane.addFolder({ title: "Monkey"});
+  monkeyFolder.addBinding(app.monkey, "rotationX", {
+    min: -90,
+    max: 90
+  });
+  monkeyFolder.addBinding(app.monkey, "rotationY", {
+    min: -90,
+    max: 90
+  });
+  monkeyFolder.addBinding(app.monkey, "rotationZ", {
+    min: -90,
+    max: 90
+  });
 }
 
 document.addEventListener('DOMContentLoaded', main);
