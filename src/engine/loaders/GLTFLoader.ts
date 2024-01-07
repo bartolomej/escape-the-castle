@@ -256,6 +256,7 @@ export class GLTFLoader {
         return mesh;
     }
 
+    // TODO: Fix light importing
     async loadLight(nameOrIndex: string | number) {
         const gltfSpec = this.findByNameOrIndex(deep(this.gltf, 'extensions.KHR_lights_punctual.lights'), nameOrIndex);
         if (this.cache.has(gltfSpec)) {

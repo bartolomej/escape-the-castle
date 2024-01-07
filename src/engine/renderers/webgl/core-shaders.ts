@@ -29,14 +29,14 @@ void main() {
 
 
 type CoreFragmentShaderProps = {
-  nLights: number; // max number of lights
+  numberOfLights: number; // max number of lights
 }
 
 export const createFragmentShader = ({
-  nLights
+  numberOfLights
 }: CoreFragmentShaderProps) => {
   // GLSL array size must be greater than 0
-  nLights = Math.max(nLights, 1);
+  numberOfLights = Math.max(numberOfLights, 1);
   // language=GLSL
   return `
 #version 300 es
@@ -44,12 +44,9 @@ precision mediump float;
 
 uniform mat4 uViewModel;
 uniform mediump sampler2D uTexture;
-uniform vec3 uAmbientColor[${nLights}];
-uniform vec3 uDiffuseColor[${nLights}];
-uniform vec3 uSpecularColor[${nLights}];
-uniform float uShininess[${nLights}];
-uniform vec3 uLightPosition[${nLights}];
-uniform vec3 uLightAttenuation[${nLights}];
+uniform vec3 uLightPosition[${numberOfLights}];
+uniform vec3 uLightDirection[${numberOfLights}];
+uniform vec3 uLightColor[${numberOfLights}];
 
 in vec3 vVertexViewPosition;
 in vec3 vNormal;
@@ -60,19 +57,22 @@ out vec4 oColor;
 void main() {
     oColor = vec4(0.0);
     
-    for (int i = 0; i < ${nLights}; i++) {
-        vec3 normal = normalize(vNormal);
-        vec4 color = vec4(uAmbientColor[i], 1.0);
-
-        // compute the light by taking the dot product
-        // of the normal to the light's reverse direction
-        float light = dot(normal, vec3(0.0,1.0,0.0));
-      
-        // Lets multiply just the color portion (not the alpha)
-        // by the light
-        color.rgb *= light;
+//    oColor = vec4(uLightColor[1], 1);
+//    return;
+    
+    for (int i = 0; i < ${numberOfLights}; i++) {
+        vec3 surfaceNormal = normalize(vNormal);
         
-        oColor += color;
+        // Ambient
+        vec3 ambientLight = uLightColor[i];
+        
+        // Directional
+        float directionalIntensity = dot(surfaceNormal, uLightDirection[i]);
+        vec3 directionalLight = uLightColor[i] * directionalIntensity;
+        
+        vec3 light = (directionalLight + ambientLight);
+      
+        oColor += texture(uTexture, vTexCoord) * vec4(light, 1);
      }
 }`.trim()
 }

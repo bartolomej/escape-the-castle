@@ -54,7 +54,7 @@ export class WebGL {
         WebGL.createShader(gl, program.fragment, gl.FRAGMENT_SHADER)
       ]);
     } catch (err) {
-      throw new Error('Error compiling ' + name + '\n' + err);
+      throw new Error('Error compiling ' + '\n' + err);
     }
   }
 
@@ -82,6 +82,13 @@ export class WebGL {
     for (let i = 0; i < activeUniforms; i++) {
       const info = gl.getActiveUniform(program, i);
       uniforms[info.name] = gl.getUniformLocation(program, info.name);
+
+      // WebGL only returns the first index name for vector uniforms (e.g. `uniformName[0]`).
+      // If this is a vector uniform (size > 1), extract subsequent uniform index locations manually.
+      for (let j = 1; j < info.size; j++) {
+        const name = info.name.replace("[0]", `[${j}]`);
+        uniforms[name] = gl.getUniformLocation(program, name);
+      }
     }
 
     return { program, attributes, uniforms };

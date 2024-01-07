@@ -14,6 +14,7 @@ import { PerspectiveCamera } from "../engine/cameras/PerspectiveCamera";
 import ShaderMaterial from "../engine/materials/ShaderMaterial";
 import {AmbientLight} from "../engine/lights/AmbientLight";
 import {quat} from "gl-matrix";
+import {DirectionalLight} from "../engine/lights/DirectionalLight";
 
 class App extends Application {
 
@@ -39,7 +40,11 @@ class App extends Application {
     this.scene.nodes = this.scene.nodes.filter(node => !node.name.includes("Light"));
 
     this.scene.addNode(new AmbientLight({
-      color: [100, 50, 50]
+      color: [100, 0, 0]
+    }));
+
+    this.scene.addNode(new DirectionalLight({
+      color: [0, 100, 0]
     }));
 
     this.shaderMaterial = new ShaderMaterial({

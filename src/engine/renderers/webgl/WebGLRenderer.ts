@@ -50,11 +50,11 @@ export class WebGLRenderer {
     return this.programs.get("default")
   }
 
-  preparePrograms(options: {nLights: number}) {
+  preparePrograms(options: {numberOfLights: number}) {
     const program = WebGL.buildProgram(this.gl, {
       vertex: createVertexShader(),
       fragment: createFragmentShader({
-        nLights: options.nLights
+        numberOfLights: options.numberOfLights
       })
     });
     this.programs.set("default", program);
@@ -219,8 +219,7 @@ export class WebGLRenderer {
     let lights = scene.findNodes(node => node instanceof Light);
     // rebuild programs if complete scene info is known on startup
     this.preparePrograms({
-      // TODO: I think our shaders break for >1 lights
-      nLights: lights.length
+      numberOfLights: lights.length
     })
     for (const node of scene.nodes) {
       this.prepare3dObject(node);
@@ -256,11 +255,12 @@ export class WebGLRenderer {
           this.renderLight(object, lightCount)
           lightCount++;
         }
+        
         this.renderObject3D(object, {
           viewModel: viewModelMatrix,
           model: modelMatrix,
           projection
-        })
+        });
       },
       onLeave: () => {
         viewModelMatrix = modelViewMatrixStack.pop();
@@ -272,21 +272,15 @@ export class WebGLRenderer {
   renderLight(light: Light, lightIndex: number) {
     const { gl, defaultProgram: program } = this;
 
-    let color = vec3.clone(light.ambientColor);
+    let color = vec3.clone(light.color);
     vec3.scale(color, color, 1.0 / 255.0);
-    gl.uniform3fv(program.uniforms['uAmbientColor[' + lightIndex + ']'], color);
-    color = vec3.clone(light.diffuseColor);
-    vec3.scale(color, color, 1.0 / 255.0);
-    gl.uniform3fv(program.uniforms['uDiffuseColor[' + lightIndex + ']'], color);
-    color = vec3.clone(light.specularColor);
-    vec3.scale(color, color, 1.0 / 255.0);
-    gl.uniform3fv(program.uniforms['uSpecularColor[' + lightIndex + ']'], color);
+    gl.uniform3fv(program.uniforms['uLightColor[' + lightIndex + ']'], color);
+
     let position: vec3 = [0, 0, 0];
     mat4.getTranslation(position, light.matrix);
 
+    gl.uniform3fv(program.uniforms['uLightDirection[' + lightIndex + ']'], light.direction);
     gl.uniform3fv(program.uniforms['uLightPosition[' + lightIndex + ']'], position);
-    gl.uniform1f(program.uniforms['uShininess[' + lightIndex + ']'], light.shininess);
-    gl.uniform3fv(program.uniforms['uLightAttenuation[' + lightIndex + ']'], light.attenuatuion);
   }
 
   renderObject3D (object3d: Object3D, matrices: {

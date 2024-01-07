@@ -8,8 +8,7 @@ type AmbientLightOptions = Partial<Pick<LightOptions, "name">> & {
 export class AmbientLight extends Light {
     constructor(options: AmbientLightOptions) {
         super();
-
         this.name = options.name ?? "AmbientLight";
-        this.ambientColor = options.color ?? [51, 51, 51];
+        this.color = options.color ?? [51, 51, 51];
     }
 }
