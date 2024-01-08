@@ -5,13 +5,11 @@ export type LightOptions = Partial<Light> & Object3DOptions;
 
 export class Light extends Object3D {
   color: vec3;
-  direction: vec3;
 
   constructor(options: LightOptions = {}) {
     super(options);
     this.name = "Light";
     this.color = options.color ?? [0, 0, 0];
-    this.direction = options.direction ?? [0, 0, 0];
   }
 
 }

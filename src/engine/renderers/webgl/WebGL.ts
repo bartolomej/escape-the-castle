@@ -101,7 +101,7 @@ export class WebGL {
     const status = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
     if (!status) {
       const log = gl.getShaderInfoLog(shader);
-      throw new Error('Cannot compile shader\nInfo log:\n' + log);
+      throw new Error(`Cannot compile shader:\n${source}Info log:\n${log}`);
     }
     return shader;
   }

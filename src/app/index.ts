@@ -14,6 +14,7 @@ import ShaderMaterial from "../engine/materials/ShaderMaterial";
 import {AmbientLight} from "../engine/lights/AmbientLight";
 import {quat} from "gl-matrix";
 import {DirectionalLight} from "../engine/lights/DirectionalLight";
+import {PointLight} from "../engine/lights/PointLight";
 
 class App extends Application {
 
@@ -42,11 +43,17 @@ class App extends Application {
     this.scene.nodes = this.scene.nodes.filter(node => !node.name.includes("Light"));
 
     this.scene.addNode(new AmbientLight({
-      color: [100, 0, 0]
+      color: [100, 0, 0],
     }));
 
     this.scene.addNode(new DirectionalLight({
-      color: [0, 100, 0]
+      color: [0, 100, 0],
+      translation: [0, 10, 0]
+    }));
+
+    this.scene.addNode(new PointLight({
+      color: [0, 0, 100],
+      translation: [0,0,0]
     }));
 
     this.shaderMaterial = new ShaderMaterial({

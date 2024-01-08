@@ -11,6 +11,8 @@ export type DirectionalLightOptions = Object3DOptions & {
 const defaultDirection: vec3 = [0, 1, 0];
 
 export class DirectionalLight extends Light {
+    direction: vec3;
+
     constructor(options: DirectionalLightOptions = {}) {
         super(options);
         this.name = "DirectionalLight";

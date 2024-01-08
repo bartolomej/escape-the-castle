@@ -1,4 +1,8 @@
-export const createVertexShader = () => {
+export type CoreShaderOptions = {
+  numberOfLights: number; // max number of lights
+}
+
+export const createVertexShader = ({numberOfLights}: CoreShaderOptions) => {
   // language=GLSL
   return `
 #version 300 es
@@ -7,6 +11,10 @@ layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec2 aTexCoord;
 layout (location = 2) in vec3 aNormal;
 
+// TODO: Should we rename "model" to "world"?
+// See: https://webgl2fundamentals.org/webgl/lessons/webgl-matrix-naming.html
+
+uniform vec3 uLightPosition[${numberOfLights}];
 uniform mat4 uModel;
 uniform mat4 uViewModel;
 uniform mat4 uProjection;
@@ -15,6 +23,7 @@ out vec3 vVertexViewPosition;
 out vec3 vVertexPosition;
 out vec3 vNormal;
 out vec2 vTexCoord;
+out vec3 vSurfaceToLight[${numberOfLights}];
 
 void main() {
     vVertexPosition = aPosition;
@@ -23,20 +32,20 @@ void main() {
     vNormal = mat3(uModel) * aNormal;
     vTexCoord = aTexCoord;
     gl_Position = uProjection * uViewModel * vec4(aPosition, 1);
+    
+    vec3 surfaceModalPosition = (aPosition * mat3(uModel)).xyz;
+    for (int i = 0; i < ${numberOfLights}; i++) {
+        vec3 lightModelPosition = uLightPosition[i] * mat3(uModel);
+        vSurfaceToLight[i] = lightModelPosition - surfaceModalPosition;
+    }
 
 }`.trim()
 }
 
 
-type CoreFragmentShaderProps = {
-  numberOfLights: number; // max number of lights
-}
-
 export const createFragmentShader = ({
   numberOfLights
-}: CoreFragmentShaderProps) => {
-  // GLSL array size must be greater than 0
-  numberOfLights = Math.max(numberOfLights, 1);
+}: CoreShaderOptions) => {
   // language=GLSL
   return `
 #version 300 es
@@ -47,31 +56,45 @@ uniform mediump sampler2D uTexture;
 uniform vec3 uLightPosition[${numberOfLights}];
 uniform vec3 uLightDirection[${numberOfLights}];
 uniform vec3 uLightColor[${numberOfLights}];
+uniform int uLightType[${numberOfLights}];
 
+in vec3 vSurfaceToLight[${numberOfLights}];
 in vec3 vVertexViewPosition;
 in vec3 vNormal;
 in vec2 vTexCoord;
 
 out vec4 oColor;
 
+int LIGHT_TYPE_AMBIENT = 0;
+int LIGHT_TYPE_DIRECTIONAL = 1;
+int LIGHT_TYPE_POINT = 2;
+
 void main() {
     oColor = vec4(0.0);
     
-//    oColor = vec4(uLightColor[1], 1);
-//    return;
-    
     for (int i = 0; i < ${numberOfLights}; i++) {
         vec3 surfaceNormal = normalize(vNormal);
+        int lightType = uLightType[i];
         
-        // Ambient
-        vec3 ambientLight = uLightColor[i];
+        vec3 light = vec3(0, 0, 0);
         
-        // Directional
-        float directionalIntensity = dot(surfaceNormal, uLightDirection[i]);
-        vec3 directionalLight = uLightColor[i] * directionalIntensity;
+        if (lightType == LIGHT_TYPE_AMBIENT) {
+            light += uLightColor[i]; 
+        }
         
-        vec3 light = (directionalLight + ambientLight);
-      
+        if (lightType == LIGHT_TYPE_DIRECTIONAL) {
+            float directionalIntensity = dot(surfaceNormal, uLightDirection[i]);
+            light += uLightColor[i] * directionalIntensity;
+        }
+        
+        // TODO: Point light doesn't work as expected
+        if (lightType == LIGHT_TYPE_POINT) {
+            float distanceToLight = length(vSurfaceToLight[i]);
+            float attenuation = 1.0 / (distanceToLight * distanceToLight);
+            float directionalIntensity = dot(surfaceNormal, vSurfaceToLight[i]);
+            light += uLightColor[i] * directionalIntensity * attenuation;
+        }
+        
         oColor += texture(uTexture, vTexCoord) * vec4(light, 1);
      }
 }`.trim()

@@ -3,7 +3,7 @@ import {mat4, vec3, vec4} from 'gl-matrix';
 import {WebGL, WebGLProgramBundle} from "./WebGL";
 import { Light } from "../../lights/Light";
 
-import { createFragmentShader, createVertexShader } from "./core-shaders";
+import {CoreShaderOptions, createFragmentShader, createVertexShader} from "./core-shaders";
 import ShaderMaterial, {ShaderUniform, UniformType} from "../../materials/ShaderMaterial";
 import {Scene} from "../../Scene";
 import {Object3D} from "../../core/Object3D";
@@ -14,6 +14,9 @@ import {Texture} from "../../textures/Texture";
 import {Material} from "../../materials/Material";
 import {BufferView} from "../../core/BufferView";
 import {Camera} from "../../cameras/Camera";
+import {DirectionalLight} from "../../lights/DirectionalLight";
+import {AmbientLight} from "../../lights/AmbientLight";
+import {PointLight} from "../../lights/PointLight";
 
 // This class prepares all assets for use with WebGL
 // and takes care of rendering.
@@ -51,12 +54,10 @@ export class WebGLRenderer {
     return this.programs.get("default")
   }
 
-  preparePrograms(options: {numberOfLights: number}) {
+  preparePrograms(options: CoreShaderOptions) {
     const program = WebGL.buildProgram(this.gl, {
-      vertex: createVertexShader(),
-      fragment: createFragmentShader({
-        numberOfLights: options.numberOfLights
-      })
+      vertex: createVertexShader(options),
+      fragment: createFragmentShader(options)
     });
     this.programs.set("default", program);
   }
@@ -143,7 +144,10 @@ export class WebGLRenderer {
     try {
       const program = WebGL.buildProgram(this.gl, {
         // TODO: add support for custom vertex shaders?
-        vertex: createVertexShader(),
+        vertex: createVertexShader({
+          // Doesn't matter what we use here, as lights are not applied in custom shaders yet.
+          numberOfLights: 1
+        }),
         fragment: material.fragmentShader,
       });
       this.programs.set(material, program);
@@ -272,15 +276,37 @@ export class WebGLRenderer {
   renderLight(light: Light, lightIndex: number) {
     const { gl, defaultProgram: program } = this;
 
+    function arrayParamName(name: string) {
+      return `${name}[${lightIndex}]`
+    }
+
+    function getLightType() {
+      // Must be kept in sync with constants in core fragment shader.
+      switch (true) {
+        case light instanceof AmbientLight:
+          return 0;
+        case light instanceof DirectionalLight:
+          return 1;
+        case light instanceof PointLight:
+          return 2;
+        default:
+          throw new Error(`Unknown light type: ${JSON.stringify(light)}`)
+      }
+    }
+
     let color = vec3.clone(light.color);
     vec3.scale(color, color, 1.0 / 255.0);
-    gl.uniform3fv(program.uniforms['uLightColor[' + lightIndex + ']'], color);
+    gl.uniform3fv(program.uniforms[arrayParamName("uLightColor")], color);
 
     let position: vec3 = [0, 0, 0];
     mat4.getTranslation(position, light.matrix);
 
-    gl.uniform3fv(program.uniforms['uLightDirection[' + lightIndex + ']'], light.direction);
-    gl.uniform3fv(program.uniforms['uLightPosition[' + lightIndex + ']'], position);
+    gl.uniform3fv(program.uniforms[arrayParamName("uLightPosition")], position);
+    gl.uniform1i(program.uniforms[arrayParamName("uLightType")], getLightType());
+
+    if (light instanceof DirectionalLight) {
+      gl.uniform3fv(program.uniforms[arrayParamName("uLightDirection")], light.direction);
+    }
   }
 
   renderObject3D (object3d: Object3D, matrices: {
