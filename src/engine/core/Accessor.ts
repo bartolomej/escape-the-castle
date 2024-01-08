@@ -7,6 +7,7 @@ import {BufferView} from "./BufferView";
 export class Accessor {
     bufferView: BufferView;
     byteOffset: number;
+    // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#accessor-data-types
     componentType: number;
     normalized: boolean;
     count: number;

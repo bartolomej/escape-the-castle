@@ -15,6 +15,9 @@ import {AmbientLight} from "../engine/lights/AmbientLight";
 import {quat} from "gl-matrix";
 import {DirectionalLight} from "../engine/lights/DirectionalLight";
 import {PointLight} from "../engine/lights/PointLight";
+import {SpherePrimitive} from "../engine/geometries/SpherePrimitive";
+import {Object3D} from "../engine/core/Object3D";
+import {Mesh} from "../engine/core/Mesh";
 
 class App extends Application {
 
@@ -40,7 +43,19 @@ class App extends Application {
 
     this.scene = await this.loader.loadScene(this.loader.defaultScene);
 
-    this.scene.nodes = this.scene.nodes.filter(node => !node.name.includes("Light"));
+    this.scene.addNode(new Object3D({
+      name: "Sphere",
+      mesh: new Mesh({
+        primitives: [
+          new SpherePrimitive({
+            radius: 1,
+            subdivisionsHeight: 100,
+            subdivisionsAxis: 100
+          })
+        ]
+      }),
+      translation: [3,1,-5]
+    }))
 
     this.scene.addNode(new AmbientLight({
       color: [100, 0, 0],
@@ -92,13 +107,15 @@ class App extends Application {
     }
 
     const monkey = this.scene.findNodesByName("Suzanne")[0];
-    quat.fromEuler(
-        monkey.rotation,
-        this.monkeyConfig.rotationX,
-        this.monkeyConfig.rotationY,
-        this.monkeyConfig.rotationZ
-    );
-    monkey.updateMatrix();
+    if (monkey) {
+      quat.fromEuler(
+          monkey.rotation,
+          this.monkeyConfig.rotationX,
+          this.monkeyConfig.rotationY,
+          this.monkeyConfig.rotationZ
+      );
+      monkey.updateMatrix();
+    }
 
     this.camera.fov = this.cameraConfig.fov;
     this.camera.updateProjection();

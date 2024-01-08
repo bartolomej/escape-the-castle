@@ -17,6 +17,7 @@ import {Camera} from "../../cameras/Camera";
 import {DirectionalLight} from "../../lights/DirectionalLight";
 import {AmbientLight} from "../../lights/AmbientLight";
 import {PointLight} from "../../lights/PointLight";
+import {SpherePrimitive} from "../../geometries/SpherePrimitive";
 
 // This class prepares all assets for use with WebGL
 // and takes care of rendering.
