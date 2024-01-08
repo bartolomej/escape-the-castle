@@ -18,6 +18,7 @@ import {PointLight} from "../engine/lights/PointLight";
 import {SpherePrimitive} from "../engine/geometries/SpherePrimitive";
 import {Object3D} from "../engine/core/Object3D";
 import {Mesh} from "../engine/core/Mesh";
+import {CubePrimitive} from "../engine/geometries/CubePrimitive";
 
 class App extends Application {
 
@@ -55,7 +56,19 @@ class App extends Application {
         ]
       }),
       translation: [3,1,-5]
-    }))
+    }));
+
+    this.scene.addNode(new Object3D({
+      name: "Cube",
+      mesh: new Mesh({
+        primitives: [
+          new CubePrimitive({
+            size: 1,
+          })
+        ]
+      }),
+      translation: [-3,1,-5]
+    }));
 
     this.scene.addNode(new AmbientLight({
       color: [100, 0, 0],
