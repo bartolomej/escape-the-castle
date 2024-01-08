@@ -48,6 +48,7 @@
     "gl-matrix": "^3.4.3",
     "howler": "^2.2.3",
     "node-fetch": "^2.6.6",
-    "tweakpane": "^4.0.3"
+    "tweakpane": "^4.0.3",
+    "twgl.js": "^5.5.3"
   }
 }

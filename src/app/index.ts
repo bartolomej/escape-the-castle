@@ -14,7 +14,6 @@ import ShaderMaterial from "../engine/materials/ShaderMaterial";
 import {AmbientLight} from "../engine/lights/AmbientLight";
 import {quat} from "gl-matrix";
 import {DirectionalLight} from "../engine/lights/DirectionalLight";
-import {PointLight} from "../engine/lights/PointLight";
 import {SpherePrimitive} from "../engine/geometries/SpherePrimitive";
 import {Object3D} from "../engine/core/Object3D";
 import {Mesh} from "../engine/core/Mesh";
@@ -71,18 +70,20 @@ class App extends Application {
     }));
 
     this.scene.addNode(new AmbientLight({
-      color: [100, 0, 0],
+      color: [0, 0, 100],
     }));
 
     this.scene.addNode(new DirectionalLight({
-      color: [0, 100, 0],
-      translation: [0, 10, 0]
+      color: [100, 100, 100],
+      translation: [0, 10, 0],
+      direction: [1,1,0]
     }));
 
-    this.scene.addNode(new PointLight({
-      color: [0, 0, 100],
-      translation: [0,0,0]
-    }));
+    // TODO: Fix point lightning
+    // this.scene.addNode(new PointLight({
+    //   color: [0, 0, 100],
+    //   translation: [0,0,0]
+    // }));
 
     this.shaderMaterial = new ShaderMaterial({
       fragmentShader: fragment,
