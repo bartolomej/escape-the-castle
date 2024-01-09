@@ -5,13 +5,15 @@ import {isPrimitiveAttributeName, Primitive, PrimitiveOptions} from '../core/Pri
 import {Mesh, MeshOptions} from '../core/Mesh';
 import { PerspectiveCamera } from '../cameras/PerspectiveCamera';
 import { OrthographicCamera } from '../cameras/OrthographicCamera';
-import { Object3D } from '../core/Object3D';
+import {Object3D} from '../core/Object3D';
 import {Scene, SceneOptions} from '../Scene';
 import { deep } from "../Utils";
 import { Light } from "../lights/Light";
 import {BufferView} from "../core/BufferView";
 import {Accessor} from "../core/Accessor";
 import {Camera} from "../cameras/Camera";
+import {PointLight} from "../lights/PointLight";
+import {quat, vec3} from 'gl-matrix';
 
 // This class loads all GLTF resources and instantiates
 // the corresponding classes. Keep in mind that it loads
@@ -256,14 +258,26 @@ export class GLTFLoader {
         return mesh;
     }
 
-    // TODO: Fix light importing
-    async loadLight(nameOrIndex: string | number) {
+    // https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_lights_punctual/README.md
+    async loadLight(nameOrIndex: string | number): Promise<Light> {
         const gltfSpec = this.findByNameOrIndex(deep(this.gltf, 'extensions.KHR_lights_punctual.lights'), nameOrIndex);
         if (this.cache.has(gltfSpec)) {
             return this.cache.get(gltfSpec);
         }
-        // create light with default props for now
-        const light = new Light();
+        const scaledColor = vec3.create();
+        vec3.scale(scaledColor, gltfSpec.color, 255);
+
+        function buildLight() {
+            switch (gltfSpec.type) {
+                case "point":
+                    return new PointLight({
+                        name: gltfSpec.name,
+                        color: scaledColor,
+                        intensity: gltfSpec.intensity ?? 1
+                    });
+            }
+        }
+        const light = buildLight();
         this.cache.set(gltfSpec, light);
         return light;
     }
@@ -299,6 +313,7 @@ export class GLTFLoader {
         }
     }
 
+    // https://github.com/KhronosGroup/glTF-Tutorials/blob/master/gltfTutorial/gltfTutorial_004_ScenesNodes.md
     async loadNode(nameOrIndex: string | number) {
         const gltfSpec = this.findByNameOrIndex(this.gltf.nodes, nameOrIndex);
         if (!gltfSpec) {
@@ -308,11 +323,26 @@ export class GLTFLoader {
             return this.cache.get(gltfSpec);
         }
 
-        let options = { ...gltfSpec, children: [] };
+        let node = new Object3D();
+
+        const light = deep(gltfSpec, 'extensions.KHR_lights_punctual.light');
+        if (light !== undefined) {
+            node = await this.loadLight(light)
+        }
+
+        if (gltfSpec.matrix) {
+            node.matrix = gltfSpec.matrix;
+            node.updateTransform();
+        } else if (gltfSpec.translation || gltfSpec.rotation || gltfSpec.scale) {
+            node.translation = gltfSpec.translation ?? vec3.fromValues(0,0,0);
+            node.scale = gltfSpec.scale ?? vec3.fromValues(1, 1, 1);
+            node.rotation = gltfSpec.rotation ?? quat.fromValues(0, 0, 0, 1);
+            node.updateMatrix();
+        }
+
         if (gltfSpec.children) {
             for (const nodeIndex of gltfSpec.children) {
-                const node = await this.loadNode(nodeIndex);
-                options.children.push(node);
+                node.addChild(await this.loadNode(nodeIndex))
             }
         }
         // TODO: Migrate camera importing
@@ -320,15 +350,9 @@ export class GLTFLoader {
         //     options.camera = await this.loadCamera(gltfSpec.camera);
         // }
         if (gltfSpec.mesh !== undefined) {
-            options.mesh = await this.loadMesh(gltfSpec.mesh);
-        }
-        // https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_lights_punctual#defining-lights
-        const light = deep(gltfSpec, 'extensions.KHR_lights_punctual.light');
-        if (light !== undefined) {
-            options.light = await this.loadLight(light)
+            node.mesh = await this.loadMesh(gltfSpec.mesh);
         }
 
-        const node = new Object3D(options);
         this.cache.set(gltfSpec, node);
         return node;
     }

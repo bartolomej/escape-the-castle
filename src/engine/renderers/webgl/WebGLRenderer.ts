@@ -17,7 +17,6 @@ import {Camera} from "../../cameras/Camera";
 import {DirectionalLight} from "../../lights/DirectionalLight";
 import {AmbientLight} from "../../lights/AmbientLight";
 import {PointLight} from "../../lights/PointLight";
-import {SpherePrimitive} from "../../geometries/SpherePrimitive";
 
 // This class prepares all assets for use with WebGL
 // and takes care of rendering.
@@ -223,9 +222,15 @@ export class WebGLRenderer {
 
   prepareScene (scene: Scene) {
     let lights = scene.findNodes(node => node instanceof Light);
+    const numberOfLights = lights.length;
+
+    if (numberOfLights === 0) {
+      throw new Error("Scene must have at least 1 light")
+    }
+
     // rebuild programs if complete scene info is known on startup
     this.preparePrograms({
-      numberOfLights: lights.length
+      numberOfLights
     })
     for (const node of scene.nodes) {
       this.prepare3dObject(node);
