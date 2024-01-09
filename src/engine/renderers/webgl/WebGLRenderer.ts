@@ -309,6 +309,7 @@ export class WebGLRenderer {
 
     gl.uniform3fv(program.uniforms[arrayParamName("uLightPosition")], position);
     gl.uniform1i(program.uniforms[arrayParamName("uLightType")], getLightType());
+    gl.uniform1f(program.uniforms[arrayParamName("uLightIntensity")], light.intensity);
 
     if (light instanceof DirectionalLight) {
       gl.uniform3fv(program.uniforms[arrayParamName("uLightDirection")], light.direction);

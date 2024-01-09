@@ -18,6 +18,7 @@ import {SpherePrimitive} from "../engine/geometries/SpherePrimitive";
 import {Object3D} from "../engine/core/Object3D";
 import {Mesh} from "../engine/core/Mesh";
 import {CubePrimitive} from "../engine/geometries/CubePrimitive";
+import {PointLight} from "../engine/lights/PointLight";
 
 class App extends Application {
 
@@ -29,7 +30,7 @@ class App extends Application {
   private shaderMaterial: ShaderMaterial;
 
   cameraConfig = {
-    fov: 2,
+    fov: 1.8,
   }
   monkeyConfig = {
     rotationX: 0,
@@ -43,61 +44,62 @@ class App extends Application {
 
     this.scene = await this.loader.loadScene(this.loader.defaultScene);
 
-    this.scene.addNode(new Object3D({
-      name: "Sphere",
-      mesh: new Mesh({
-        primitives: [
-          new SpherePrimitive({
-            radius: 1,
-            subdivisionsHeight: 100,
-            subdivisionsAxis: 100
-          })
-        ]
-      }),
-      translation: [3,1,-5]
-    }));
+    // this.scene.addNode(new Object3D({
+    //   name: "Sphere",
+    //   mesh: new Mesh({
+    //     primitives: [
+    //       new SpherePrimitive({
+    //         radius: 1,
+    //         subdivisionsHeight: 100,
+    //         subdivisionsAxis: 100
+    //       })
+    //     ]
+    //   }),
+    //   translation: [3,1,-5]
+    // }));
 
-    this.scene.addNode(new Object3D({
-      name: "Cube",
-      mesh: new Mesh({
-        primitives: [
-          new CubePrimitive({
-            size: 1,
-          })
-        ]
-      }),
-      translation: [-3,1,-5]
-    }));
+    // this.scene.addNode(new Object3D({
+    //   name: "Cube",
+    //   mesh: new Mesh({
+    //     primitives: [
+    //       new CubePrimitive({
+    //         size: 1,
+    //       })
+    //     ]
+    //   }),
+    //   scale: [1,5,1],
+    //   translation: [-3,1,-5]
+    // }));
 
-    this.scene.addNode(new AmbientLight({
-      color: [0, 0, 100],
-    }));
+    // this.scene.addNode(new Object3D({
+    //   name: "Manual wall",
+    //   mesh: new Mesh({
+    //     primitives: [
+    //       new CubePrimitive({
+    //         size: 1,
+    //       })
+    //     ]
+    //   }),
+    //   scale: [1,5,5],
+    //   translation: [-6,1,-5]
+    // }));
 
-    this.scene.addNode(new DirectionalLight({
-      color: [100, 100, 100],
-      translation: [0, 10, 0],
-      direction: [1,1,0]
-    }));
+    // this.scene.addNode(new AmbientLight({
+    //   color: [0, 0, 100],
+    // }));
+
+    // this.scene.addNode(new DirectionalLight({
+    //   color: [100, 100, 100],
+    //   translation: [0, 10, 0],
+    //   direction: [1,1,0]
+    // }));
 
     // TODO: Fix point lightning
     // this.scene.addNode(new PointLight({
-    //   color: [0, 0, 100],
+    //   color: [255, 255, 255],
     //   translation: [0,0,0]
     // }));
 
-    this.shaderMaterial = new ShaderMaterial({
-      fragmentShader: fragment,
-      uniforms: {
-        time: {
-          type: "1f",
-          value: 0,
-        },
-        frequencies: {
-          type: "1fv",
-          value: []
-        }
-      }
-    });
     // this.scene.findNodes(".*").forEach(wall => {
     //   wall.mesh?.setMaterial(this.shaderMaterial);
     // })

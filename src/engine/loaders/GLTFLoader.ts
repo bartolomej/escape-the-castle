@@ -273,7 +273,10 @@ export class GLTFLoader {
                     return new PointLight({
                         name: gltfSpec.name,
                         color: scaledColor,
-                        intensity: gltfSpec.intensity ?? 1
+                        // Currently we expect "unit-less" lightning mode export format from Blender.
+                        // See: https://github.com/KhronosGroup/glTF-Blender-IO/pull/1760
+                        // Hack: Scale by an arbitrary factor to adjust for our internal lightning intensity scale.
+                        intensity: gltfSpec.intensity ? gltfSpec.intensity / 5 : 1
                     });
             }
         }

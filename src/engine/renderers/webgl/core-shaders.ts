@@ -56,6 +56,7 @@ uniform mediump sampler2D uTexture;
 uniform vec3 uLightPosition[${numberOfLights}];
 uniform vec3 uLightDirection[${numberOfLights}];
 uniform vec3 uLightColor[${numberOfLights}];
+uniform float uLightIntensity[${numberOfLights}];
 uniform int uLightType[${numberOfLights}];
 
 in vec3 vSurfaceToLight[${numberOfLights}];
@@ -91,7 +92,7 @@ void main() {
         if (lightType == LIGHT_TYPE_POINT) {
             float distanceToLight = length(vSurfaceToLight[i]);
             float attenuation = 1.0 / (distanceToLight * distanceToLight);
-            float directionalIntensity = dot(surfaceNormal, vSurfaceToLight[i]);
+            float directionalIntensity = dot(surfaceNormal, vSurfaceToLight[i]) * uLightIntensity[i];
             light += uLightColor[i] * directionalIntensity * attenuation;
         }
         

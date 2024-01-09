@@ -5,7 +5,6 @@ export type LightOptions = Partial<Light> & Object3DOptions;
 
 export class Light extends Object3D {
   color: vec3;
-  // TODO: Add support in shaders
   intensity: number;
 
   constructor(options: LightOptions = {}) {
