@@ -40,7 +40,7 @@ class App extends Application {
 
   async start() {
     this.loader = new GLTFLoader();
-    await this.loader.load('./models/test.gltf');
+    await this.loader.load('./models/level.gltf');
 
     this.scene = await this.loader.loadScene(this.loader.defaultScene);
 
