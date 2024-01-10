@@ -1,4 +1,4 @@
-export default class Application {
+export default class WebGlApplication {
 
   public readonly canvas: HTMLCanvasElement;
   public gl: WebGL2RenderingContext;

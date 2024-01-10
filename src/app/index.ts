@@ -1,5 +1,5 @@
 import "./style.css"
-import Application from "../engine/Application";
+import WebGlApplication from "../engine/WebGlApplication";
 import {Pane} from 'tweakpane';
 
 // @ts-ignore
@@ -14,7 +14,7 @@ import {LabyrinthScene} from "./scenes/LabyrinthScene";
 
 const useTestScene = true;
 
-class App extends Application {
+class App extends WebGlApplication {
 
   private renderer: WebGLRenderer;
   private scene: GameScene;
