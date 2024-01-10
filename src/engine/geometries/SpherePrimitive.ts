@@ -11,11 +11,13 @@ type SphereGeometryOptions = {
 
 
 export class SpherePrimitive extends TwglPrimitive {
+    public options: SphereGeometryOptions;
     constructor(options: SphereGeometryOptions) {
         super(primitives.createSphereVertices(
             options.radius,
             options.subdivisionsAxis,
             options.subdivisionsHeight
         ));
+        this.options = options;
     }
 }

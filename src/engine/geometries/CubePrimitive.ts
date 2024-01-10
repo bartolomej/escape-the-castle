@@ -6,7 +6,9 @@ type CubePrimitiveOptions ={
 }
 
 export class CubePrimitive extends TwglPrimitive {
+    public options: CubePrimitiveOptions;
     constructor(options: CubePrimitiveOptions) {
         super(primitives.createCubeVertices(options.size));
+        this.options = options;
     }
 }

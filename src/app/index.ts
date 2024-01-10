@@ -4,23 +4,20 @@ import {Pane} from 'tweakpane';
 
 // @ts-ignore
 import { WebGLRenderer } from "../engine/renderers/webgl/WebGLRenderer";
-import { Scene } from "../engine/Scene";
-import { GLTFLoader } from "../engine/loaders/GLTFLoader";
 import FirstPersonControls from "../engine/controls/FirstPersonControls";
 import { PerspectiveCamera } from "../engine/cameras/PerspectiveCamera";
 import ShaderMaterial from "../engine/materials/ShaderMaterial";
 import {quat} from "gl-matrix";
-import {SpherePrimitive} from "../engine/geometries/SpherePrimitive";
-import {Object3D} from "../engine/core/Object3D";
-import {Mesh} from "../engine/core/Mesh";
-import {CubePrimitive} from "../engine/geometries/CubePrimitive";
+import {TestScene} from "./scenes/TestScene";
+import {GameScene} from "./core/GameScene";
+import {LabyrinthScene} from "./scenes/LabyrinthScene";
 
-const useTestScene = false;
+const useTestScene = true;
 
 class App extends Application {
 
   private renderer: WebGLRenderer;
-  private scene: Scene;
+  private scene: GameScene;
   public camera: PerspectiveCamera;
   private controls: FirstPersonControls;
   private shaderMaterial: ShaderMaterial;
@@ -36,9 +33,9 @@ class App extends Application {
 
   async start() {
     if (useTestScene) {
-      this.scene = await RoomTestScene.load();
+      this.scene = new TestScene();
     } else {
-      this.scene = await LabyrinthScene.load();
+      this.scene = new LabyrinthScene();
     }
 
     this.camera = new PerspectiveCamera({
@@ -58,6 +55,8 @@ class App extends Application {
     if (!this.scene) {
       return;
     }
+
+    this.scene.update();
 
     const monkey = this.scene.findNodesByName("Suzanne")[0];
     if (monkey) {
@@ -139,84 +138,3 @@ function main () {
 }
 
 document.addEventListener('DOMContentLoaded', main);
-
-class RoomTestScene extends Scene {
-  static async load() {
-    const gltfLoader = new GLTFLoader();
-    await gltfLoader.load('./models/test.gltf');
-    const gltfScene = await gltfLoader.loadScene(gltfLoader.defaultScene);
-    const roomScene = new RoomTestScene();
-    roomScene.addNode(...gltfScene.nodes);
-    return roomScene;
-  }
-
-  constructor() {
-    super();
-    this.init();
-  }
-
-  private init() {
-    console.log("initing", this.nodes)
-    this.addNode(new Object3D({
-      name: "Sphere",
-      mesh: new Mesh({
-        primitives: [
-          new SpherePrimitive({
-            radius: 1,
-            subdivisionsHeight: 100,
-            subdivisionsAxis: 100
-          })
-        ]
-      }),
-      translation: [3,1,-5]
-    }));
-
-    this.addNode(new Object3D({
-      name: "Cube",
-      mesh: new Mesh({
-        primitives: [
-          new CubePrimitive({
-            size: 1,
-          })
-        ]
-      }),
-      scale: [1,5,1],
-      translation: [-3,1,-5]
-    }));
-
-    this.addNode(new Object3D({
-      name: "Manual wall",
-      mesh: new Mesh({
-        primitives: [
-          new CubePrimitive({
-            size: 1,
-          })
-        ]
-      }),
-      scale: [1,5,5],
-      translation: [-6,1,-5]
-    }));
-
-    // this.addNode(new AmbientLight({
-    //   color: [0, 0, 100],
-    // }));
-    //
-    // this.addNode(new DirectionalLight({
-    //   color: [100, 100, 100],
-    //   translation: [0, 10, 0],
-    //   direction: [1,1,0]
-    // }));
-  }
-}
-
-class LabyrinthScene extends Scene {
-  static async load() {
-    const gltfLoader = new GLTFLoader();
-    await gltfLoader.load('./models/level.gltf');
-    const gltfScene = await gltfLoader.loadScene(gltfLoader.defaultScene);
-    const labyrinthScene = new LabyrinthScene();
-    labyrinthScene.addNode(...gltfScene.nodes)
-    return labyrinthScene;
-  }
-
-}
