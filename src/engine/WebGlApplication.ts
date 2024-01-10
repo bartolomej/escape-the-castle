@@ -1,17 +1,14 @@
-export class WebGlApplication {
+export abstract class WebGlApplication {
 
   public readonly canvas: HTMLCanvasElement;
   public gl: WebGL2RenderingContext;
   private t0: number;
 
   constructor (canvas: HTMLCanvasElement, glOptions?: WebGLContextAttributes) {
-    this._update = this._update.bind(this);
+    this.internalUpdate = this.internalUpdate.bind(this);
 
     this.canvas = canvas;
     this._initGL(glOptions);
-    this.start();
-
-    requestAnimationFrame(this._update);
   }
 
   _initGL (glOptions?: WebGLContextAttributes) {
@@ -26,17 +23,17 @@ export class WebGlApplication {
     }
   }
 
-  _update (time: number) {
-    this._resize();
+  private internalUpdate (time: number) {
+    this.internalResize();
     const t = time * 0.001;
     const dt = (this.t0 ? t - this.t0 : t);
     this.update(dt, t);
     this.render(dt, t);
     this.t0 = t;
-    requestAnimationFrame(this._update);
+    requestAnimationFrame(this.internalUpdate);
   }
 
-  _resize () {
+  private internalResize () {
     const { canvas, gl } = this;
 
     if (canvas.width !== canvas.clientWidth ||
@@ -50,20 +47,32 @@ export class WebGlApplication {
     }
   }
 
-  start () {
-    // initialization code (including event handler binding)
+  /**
+   * Asset loading, initialization code (including event handler binding),...
+   *
+   * Must call `super.start()` in the extended class (at the end of the method).
+   */
+  public start () {
+    requestAnimationFrame(this.internalUpdate);
   }
 
-  update (dt: number, time: number) {
-    // update code (input, animations, AI ...)
-  }
+  /**
+   * Update code (input, animations, AI ...)
+   * @param dt Delta time from the last update frame.
+   * @param time Elapsed time since the call of `this.start`.
+   */
+  public abstract update (dt: number, time: number): void;
 
-  render (dt: number, time: number) {
-    // render code (gl API calls)
-  }
+  /**
+   * Render logic (WebGL API calls).
+   * @param dt Delta time from the last update frame.
+   * @param time Elapsed time since the call of `this.start`.
+   */
+  public abstract render (dt: number, time: number): void;
 
-  resize () {
-    // resize code (e.g. update projection matrix)
-  }
+  /**
+   * Resize code (e.g. update projection matrix)
+   */
+  public abstract resize (): void;
 
 }

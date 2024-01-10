@@ -6,13 +6,12 @@ import {Pane} from 'tweakpane';
 import { WebGLRenderer } from "../engine/renderers/webgl/WebGLRenderer";
 import FirstPersonControls from "../engine/controls/FirstPersonControls";
 import { PerspectiveCamera } from "../engine/cameras/PerspectiveCamera";
-import ShaderMaterial from "../engine/materials/ShaderMaterial";
 import {quat} from "gl-matrix";
 import {TestScene} from "./scenes/TestScene";
 import {GameScene} from "./core/GameScene";
 import {LabyrinthScene} from "./scenes/LabyrinthScene";
 
-const useTestScene = true;
+const useTestScene = false;
 
 class App extends WebGlApplication {
 
@@ -20,12 +19,12 @@ class App extends WebGlApplication {
   private scene: GameScene;
   public camera: PerspectiveCamera;
   private controls: FirstPersonControls;
-  private shaderMaterial: ShaderMaterial;
 
   cameraConfig = {
     fov: 1.8,
   }
-  monkeyConfig = {
+  rotatingObjectConfig = {
+    name: "Monkey",
     rotationX: 0,
     rotationY: 0,
     rotationZ: 0
@@ -38,8 +37,10 @@ class App extends WebGlApplication {
       this.scene = new LabyrinthScene();
     }
 
+    await this.scene.start()
+
     this.camera = new PerspectiveCamera({
-      fov: this.cameraConfig.fov,
+      fov: 1.8,
       translation: [0,2,0],
     });
     this.controls = new FirstPersonControls(this.camera);
@@ -48,32 +49,41 @@ class App extends WebGlApplication {
     this.renderer.prepareScene(this.scene);
     this.resize();
 
+    super.start();
     console.log(this.scene)
   }
 
-  update (dt: number, t: number) {
+  update (dt: number) {
     if (!this.scene) {
       return;
     }
 
+    // Rotate object specified in UI controls
+    this.rotateTargetObject();
+
+    // Update all objects in the scene
     this.scene.update();
 
-    const monkey = this.scene.findNodesByName("Suzanne")[0];
-    if (monkey) {
-      quat.fromEuler(
-          monkey.rotation,
-          this.monkeyConfig.rotationX,
-          this.monkeyConfig.rotationY,
-          this.monkeyConfig.rotationZ
-      );
-      monkey.updateMatrix();
-    }
-
+    // Update camera config in case changed
     this.camera.fov = this.cameraConfig.fov;
     this.camera.updateProjection();
 
+    // Update camera transformation based on control inputs.
     this.controls?.update(dt);
-    this.shaderMaterial?.setUniform("time", t);
+  }
+
+  private rotateTargetObject() {
+    const matchingObjects = this.scene.findNodesByName(this.rotatingObjectConfig.name);
+
+    for (const object of matchingObjects) {
+      quat.fromEuler(
+          object.rotation,
+          this.rotatingObjectConfig.rotationX,
+          this.rotatingObjectConfig.rotationY,
+          this.rotatingObjectConfig.rotationZ
+      );
+      object.updateMatrix();
+    }
   }
 
   render() {
@@ -106,9 +116,11 @@ class App extends WebGlApplication {
 
 }
 
-function main () {
+async function main () {
   const canvas = document.querySelector('canvas');
   const app = new App(canvas);
+
+  await app.start()
 
   const pane = new Pane();
 
@@ -122,16 +134,17 @@ function main () {
     max: 3
   });
 
-  const monkeyFolder = pane.addFolder({ title: "Monkey"});
-  monkeyFolder.addBinding(app.monkeyConfig, "rotationX", {
+  const monkeyFolder = pane.addFolder({ title: "Transform"});
+  monkeyFolder.addBinding(app.rotatingObjectConfig, "name");
+  monkeyFolder.addBinding(app.rotatingObjectConfig, "rotationX", {
     min: -90,
     max: 90
   });
-  monkeyFolder.addBinding(app.monkeyConfig, "rotationY", {
+  monkeyFolder.addBinding(app.rotatingObjectConfig, "rotationY", {
     min: -90,
     max: 90
   });
-  monkeyFolder.addBinding(app.monkeyConfig, "rotationZ", {
+  monkeyFolder.addBinding(app.rotatingObjectConfig, "rotationZ", {
     min: -90,
     max: 90
   });

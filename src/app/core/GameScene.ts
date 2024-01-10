@@ -2,7 +2,7 @@ import {Scene} from "../../engine/Scene";
 import {GameObject} from "./GameObject";
 import * as CANNON from "cannon-es";
 
-export abstract class GameScene extends Scene {
+export class GameScene extends Scene {
     world: CANNON.World;
 
     constructor() {
@@ -10,18 +10,17 @@ export abstract class GameScene extends Scene {
         this.world = new CANNON.World();
     }
 
-    public addNode(...nodes: GameObject[]) {
-        super.addNode(...nodes);
-
-        for (const node of nodes) {
-            this.world.addBody(node.body);
-        }
-    }
-
     /**
      * State initialization.
      */
-    public abstract start(): Promise<void>;
+    public async start(): Promise<void> {
+        for (const node of this.nodes) {
+            if (node instanceof GameObject) {
+                await node.start()
+                this.world.addBody(node.body);
+            }
+        }
+    }
 
     /**
      * Update internal object state before rendering.

@@ -7,5 +7,7 @@ export class LabyrinthScene extends GameScene {
         await gltfLoader.load('./models/level.gltf');
         const gltfScene = await gltfLoader.loadScene(gltfLoader.defaultScene);
         this.addNode(...gltfScene.nodes)
+
+        await super.start();
     }
 }
