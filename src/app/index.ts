@@ -14,6 +14,8 @@ import {SpherePrimitive} from "../engine/geometries/SpherePrimitive";
 import {Object3D} from "../engine/core/Object3D";
 import {Mesh} from "../engine/core/Mesh";
 import {CubePrimitive} from "../engine/geometries/CubePrimitive";
+import {AmbientLight} from "../engine/lights/AmbientLight";
+import {DirectionalLight} from "../engine/lights/DirectionalLight";
 
 const useTestScene = false;
 
@@ -198,15 +200,6 @@ class RoomTestScene extends Scene {
       translation: [-6,1,-5]
     }));
 
-    // this.addNode(new AmbientLight({
-    //   color: [0, 0, 100],
-    // }));
-    //
-    // this.addNode(new DirectionalLight({
-    //   color: [100, 100, 100],
-    //   translation: [0, 10, 0],
-    //   direction: [1,1,0]
-    // }));
   }
 }
 
@@ -229,6 +222,17 @@ class KeyScene extends Scene {
     const gltfScene = await gltfLoader.loadScene(gltfLoader.defaultScene);
     const keyScene = new KeyScene();
     keyScene.addNode(...gltfScene.nodes);
+
+    keyScene.addNode(new AmbientLight({
+      color: [0, 0, 100],
+    }));
+
+    keyScene.addNode(new DirectionalLight({
+      color: [100, 100, 100],
+      translation: [0, 10, 0],
+      direction: [1,1,0]
+    }));
+
     return keyScene;
   }
 }
