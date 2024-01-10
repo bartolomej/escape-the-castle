@@ -1,5 +1,5 @@
 import "./style.css"
-import WebGlApplication from "../engine/WebGlApplication";
+import {WebGlApplication} from "../engine/WebGlApplication";
 import {Pane} from 'tweakpane';
 
 // @ts-ignore
