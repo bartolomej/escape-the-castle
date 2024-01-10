@@ -38,7 +38,8 @@ class App extends Application {
     if (useTestScene) {
       this.scene = await RoomTestScene.load();
     } else {
-      this.scene = await LabyrinthScene.load();
+      //this.scene = await LabyrinthScene.load();
+      this.scene = await KeyScene.load();
     }
 
     this.camera = new PerspectiveCamera({
@@ -220,3 +221,15 @@ class LabyrinthScene extends Scene {
   }
 
 }
+
+class KeyScene extends Scene {
+  static async load() {
+    const gltfLoader = new GLTFLoader();
+    await gltfLoader.load('./models/key.gltf');
+    const gltfScene = await gltfLoader.loadScene(gltfLoader.defaultScene);
+    const keyScene = new KeyScene();
+    keyScene.addNode(...gltfScene.nodes);
+    return keyScene;
+  }
+}
+
