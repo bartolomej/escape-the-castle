@@ -7,7 +7,9 @@ export class GameScene extends Scene {
 
     constructor() {
         super();
-        this.world = new CANNON.World();
+        this.world = new CANNON.World({
+            gravity: new CANNON.Vec3(0, -9.82, 0),
+        });
     }
 
     /**
@@ -26,6 +28,8 @@ export class GameScene extends Scene {
      * Update internal object state before rendering.
      */
     public update(): void {
+        this.world.fixedStep();
+
         this.traverse({
             onEnter: node => {
                 if (node instanceof GameObject) {

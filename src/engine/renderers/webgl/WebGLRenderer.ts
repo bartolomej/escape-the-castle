@@ -71,6 +71,7 @@ export class WebGLRenderer {
       bufferView.buffer,
       bufferView.byteOffset,
       bufferView.byteLength);
+
     const glBuffer = WebGL.createBuffer(this.gl, {
       target: bufferView.target,
       data: buffer

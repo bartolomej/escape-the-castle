@@ -25,14 +25,16 @@ export class Sphere extends GameObject {
         });
 
         this.body = new CANNON.Body({
-            mass: 5,
+            mass: 0.01,
             shape: new CANNON.Sphere(radius),
+            position: new CANNON.Vec3(...this.translation),
+            quaternion: new CANNON.Quaternion(...this.rotation),
         });
-
-        this.body.angularVelocity.set(0, 10, 0)
-        this.body.angularDamping = 0.5
     }
 
-    update(): void {}
+    update(): void {
+        this.translation = this.body.position.toArray();
+        this.updateMatrix();
+    }
 
 }

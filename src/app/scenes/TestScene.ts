@@ -4,16 +4,27 @@ import {Sphere} from "../objects/Sphere";
 import {Cube} from "../objects/Cube";
 import {AmbientLight} from "../../engine/lights/AmbientLight";
 import {DirectionalLight} from "../../engine/lights/DirectionalLight";
+import {Wall} from "../objects/Wall";
+import {Floor} from "../objects/Floor";
 
 export class TestScene extends GameScene {
     async start(): Promise<void> {
         const gltfLoader = new GLTFLoader();
         await gltfLoader.load('./models/test.gltf');
         const gltfScene = await gltfLoader.loadScene(gltfLoader.defaultScene);
-        this.addNode(...gltfScene.nodes);
+
+        const gltfWalls = gltfScene.findNodesByName("Wall.*");
+
+        for (const wall of gltfWalls) {
+            this.addNode(new Wall(wall))
+        }
+
+        const gltfFloor = gltfScene.findNodesByName("Floor")[0];
+
+        this.addNode(new Floor(gltfFloor))
 
         this.addNode(new Sphere({
-            translation: [3,1,-5]
+            translation: [3,10,-5]
         }));
 
         this.addNode(new Cube({

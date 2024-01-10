@@ -9,8 +9,10 @@ export type GameObjectOptions = Object3DOptions;
 export abstract class GameObject extends Object3D {
     /**
      * Physics body used for simulation.
+     *
+     * This object's state is automatically updated before `this.update` is called.
      */
-    public body: CANNON.Body;
+    public abstract body: CANNON.Body;
 
     /**
      * State initialization.

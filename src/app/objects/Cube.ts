@@ -24,10 +24,15 @@ export class Cube extends GameObject {
 
         this.body = new CANNON.Body({
             mass: 5,
-            shape: new CANNON.Box(new CANNON.Vec3(size, size, size))
+            shape: new CANNON.Box(new CANNON.Vec3(size, size, size)),
+            position: new CANNON.Vec3(...this.translation),
+            quaternion: new CANNON.Quaternion(...this.rotation),
         });
     }
 
-    update(): void {}
+    update(): void {
+        this.translation = this.body.position.toArray();
+        this.updateMatrix();
+    }
 
 }
