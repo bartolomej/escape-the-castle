@@ -14,8 +14,8 @@ export class Scene {
         this.nodes = options?.nodes ?? [];
     }
 
-    addNode(node: Object3D) {
-        this.nodes.push(node);
+    addNode(...node: Object3D[]) {
+        this.nodes.push(...node);
     }
 
     traverse(options: TraversalOptions) {
