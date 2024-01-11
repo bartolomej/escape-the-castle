@@ -3,12 +3,18 @@ import {Object3D} from "../../engine/core/Object3D";
 import * as CANNON from "cannon-es";
 import {BufferView} from "../../engine/core/BufferView";
 
+type WallOptions = {
+    physicsMaterial: CANNON.Material;
+}
+
 export class Wall extends GameObject {
     public body: CANNON.Body;
+    private readonly physicsMaterial: CANNON.Material;
 
-    constructor(object: Object3D) {
+    constructor(object: Object3D, options: WallOptions) {
         super();
         Object.assign(this, object);
+        this.physicsMaterial = options.physicsMaterial;
     }
 
     async start(): Promise<void> {
@@ -19,14 +25,19 @@ export class Wall extends GameObject {
         }
         const primitive = this.mesh.primitives[0];
 
+        const shape = new CANNON.Trimesh(
+            getVertices(primitive.attributes.POSITION.bufferView),
+            getIndices(primitive.indices.bufferView),
+        );
+
+        shape.setScale(new CANNON.Vec3(...this.scale));
+
         this.body = new CANNON.Body({
             type: CANNON.BODY_TYPES.STATIC,
+            material: this.physicsMaterial,
             position: new CANNON.Vec3(...this.translation),
             quaternion: new CANNON.Quaternion(...this.rotation),
-            shape: new CANNON.Trimesh(
-                getVertices(primitive.attributes.POSITION.bufferView),
-                getIndices(primitive.indices.bufferView),
-            )
+            shape
         });
     }
 

@@ -14,15 +14,16 @@ export class TestScene extends GameScene {
         await gltfLoader.load('./models/test.gltf');
         const gltfScene = await gltfLoader.loadScene(gltfLoader.defaultScene);
 
+        const floorMaterial = new CANNON.Material();
+
         const gltfWalls = gltfScene.findNodesByName("Wall.*");
 
         for (const wall of gltfWalls) {
-            this.addNode(new Wall(wall))
+            this.addNode(new Wall(wall, {physicsMaterial: floorMaterial}))
         }
 
         const gltfFloor = gltfScene.findNodesByName("Floor")[0];
 
-        const floorMaterial = new CANNON.Material();
         this.addNode(new Floor(gltfFloor, {physicsMaterial: floorMaterial}))
 
         const movableObjectMaterial = new CANNON.Material();
@@ -55,7 +56,7 @@ export class TestScene extends GameScene {
         this.world.addContactMaterial(new CANNON.ContactMaterial(
             floorMaterial,
             movableObjectMaterial,
-            {friction: 0.0, restitution: 0.8}
+            {friction: 0.0, restitution: 1}
         ));
 
         await super.start();
