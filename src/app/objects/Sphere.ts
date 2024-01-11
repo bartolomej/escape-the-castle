@@ -5,25 +5,27 @@ import * as CANNON from "cannon-es";
 
 export type SphereOptions = GameObjectOptions & {
     physicsMaterial: CANNON.Material;
+    radius: number;
 }
 
 export class Sphere extends GameObject {
     public body: CANNON.Body;
     private readonly physicsMaterial: CANNON.Material;
+    private readonly radius: number;
 
     constructor(options: SphereOptions) {
         super(options);
         this.name = options.name ?? "Sphere";
         this.physicsMaterial = options.physicsMaterial;
+        this.radius = options.radius;
     }
 
     async start(): Promise<void> {
-        const radius = 1;
 
         this.mesh = new Mesh({
             primitives: [
                 new SpherePrimitive({
-                    radius,
+                    radius: this.radius,
                     subdivisionsHeight: 100,
                     subdivisionsAxis: 100
                 })
@@ -33,7 +35,7 @@ export class Sphere extends GameObject {
         this.body = new CANNON.Body({
             mass: 0.01,
             material: this.physicsMaterial,
-            shape: new CANNON.Sphere(radius),
+            shape: new CANNON.Sphere(this.radius),
             position: new CANNON.Vec3(...this.translation),
             quaternion: new CANNON.Quaternion(...this.rotation),
         });

@@ -28,6 +28,7 @@ export class TestScene extends GameScene {
 
         const movableObjectMaterial = new CANNON.Material();
         this.addNode(new Sphere({
+            radius: 1,
             physicsMaterial: movableObjectMaterial,
             translation: [3, 10, -5]
         }));

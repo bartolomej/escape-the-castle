@@ -8,7 +8,7 @@ export class GameScene extends Scene {
     constructor() {
         super();
         this.world = new CANNON.World({
-            gravity: new CANNON.Vec3(0, -9.82, -3),
+            gravity: new CANNON.Vec3(0, -9.82, 2),
         });
     }
 

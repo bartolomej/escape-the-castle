@@ -11,7 +11,7 @@ import {TestScene} from "./scenes/TestScene";
 import {GameScene} from "./core/GameScene";
 import {LabyrinthScene} from "./scenes/LabyrinthScene";
 
-const useTestScene = true;
+const useTestScene = false;
 
 class App extends WebGlApplication {
 
