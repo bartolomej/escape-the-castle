@@ -12,17 +12,17 @@ type FirstPersonControlsOptions = {
 
 export default class FirstPersonControls {
   private readonly keys: { [key: string]: boolean };
-  private velocity: vec3;
+  public velocity: vec3;
   private friction: number;
   private acceleration: number;
   private maxSpeed: number;
   private mouseSensitivity: number;
   private rotation: vec3 = [0,0,0]; // euler rotation vector with angles x,y,z
 
-  constructor (private readonly camera: Object3D, options: FirstPersonControlsOptions = {}) {
+  constructor (private readonly object: Object3D, options: FirstPersonControlsOptions = {}) {
     this.velocity = options.velocity || vec3.create();
     this.friction = options.friction || 0.2;
-    this.acceleration = options.acceleration || 20;
+    this.acceleration = options.acceleration || 1;
     this.maxSpeed = options.maxSpeed || 5;
     this.mouseSensitivity = options.mouseSensitivity || 0.01;
 
@@ -33,7 +33,7 @@ export default class FirstPersonControls {
   }
 
   update (dt: number) {
-    const { camera, velocity, acceleration, friction, maxSpeed, rotation } = this;
+    const { object, velocity, acceleration, friction, maxSpeed, rotation } = this;
 
     const forward = vec3.set(vec3.create(),
       -Math.sin(rotation[1]), 0, -Math.cos(rotation[1]));
@@ -73,15 +73,15 @@ export default class FirstPersonControls {
     }
 
     // 5: update translation
-    vec3.scaleAndAdd(camera.translation, camera.translation, velocity, dt);
+    vec3.scaleAndAdd(object.translation, object.translation, velocity, dt);
 
     // 6: update the final transform
-    const t = camera.matrix;
+    const t = object.matrix;
     mat4.identity(t);
-    mat4.translate(t, t, camera.translation);
-    mat4.rotateY(t, t, camera.rotation[1]);
-    mat4.rotateX(t, t, camera.rotation[0]);
-    camera.updateMatrix();
+    mat4.translate(t, t, object.translation);
+    mat4.rotateY(t, t, object.rotation[1]);
+    mat4.rotateX(t, t, object.rotation[0]);
+    object.updateMatrix();
   }
 
   enable () {
@@ -103,7 +103,7 @@ export default class FirstPersonControls {
   private mousemoveHandler (e: MouseEvent) {
     const dx = e.movementX;
     const dy = e.movementY;
-    const { camera, rotation, mouseSensitivity } = this;
+    const { object, rotation, mouseSensitivity } = this;
 
     rotation[0] -= dy * mouseSensitivity;
     rotation[1] -= dx * mouseSensitivity;
@@ -123,11 +123,11 @@ export default class FirstPersonControls {
 
     const [x,y,z] = rotation.map((x: number) => x * 180 / Math.PI);
     const q = quat.fromEuler(quat.create(), x, y, z);
-    const v = vec3.clone(camera.translation);
-    const s = vec3.clone(camera.scale);
-    mat4.fromRotationTranslationScale(camera.matrix, q, v, s);
+    const v = vec3.clone(object.translation);
+    const s = vec3.clone(object.scale);
+    mat4.fromRotationTranslationScale(object.matrix, q, v, s);
 
-    camera.updateTransform();
+    object.updateTransform();
   }
 
   private keydownHandler (e: KeyboardEvent) {

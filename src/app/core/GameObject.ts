@@ -20,7 +20,9 @@ export abstract class GameObject extends Object3D {
     public abstract start(): Promise<void>;
 
     /**
-     * Update internal object state before rendering.
+     * Update code (input, animations, AI ...)
+     * @param dt Delta time from the last update frame.
+     * @param time Elapsed time since the call of `this.start`.
      */
-    public abstract update(): void;
+    public abstract update(dt: number, time: number): void;
 }

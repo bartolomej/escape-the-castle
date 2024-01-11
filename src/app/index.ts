@@ -4,21 +4,19 @@ import {Pane} from 'tweakpane';
 
 // @ts-ignore
 import { WebGLRenderer } from "../engine/renderers/webgl/WebGLRenderer";
-import FirstPersonControls from "../engine/controls/FirstPersonControls";
-import { PerspectiveCamera } from "../engine/cameras/PerspectiveCamera";
 import {quat} from "gl-matrix";
 import {TestScene} from "./scenes/TestScene";
 import {GameScene} from "./core/GameScene";
 import {LabyrinthScene} from "./scenes/LabyrinthScene";
+import {Player} from "./objects/Player";
 
 const useTestScene = false;
 
 class App extends WebGlApplication {
 
   private renderer: WebGLRenderer;
-  private scene: GameScene;
-  public camera: PerspectiveCamera;
-  private controls: FirstPersonControls;
+  public scene: GameScene;
+  public player: Player;
 
   cameraConfig = {
     fov: 1.8,
@@ -37,39 +35,34 @@ class App extends WebGlApplication {
       this.scene = new LabyrinthScene();
     }
 
-    await this.scene.start()
+    // Loads the scene nodes
+    await this.scene.start();
+    // Log scene in console for easier debugging.
+    console.log(this.scene);
 
-    this.camera = new PerspectiveCamera({
-      fov: 1.8,
-      translation: [0,2,0],
-    });
-    this.controls = new FirstPersonControls(this.camera);
+    const player = this.scene.findNodes(node => node instanceof Player)[0];
+    if (player) {
+      this.player = player as Player;
+    } else {
+      throw new Error("Player not found in the scene");
+    }
 
     this.renderer = new WebGLRenderer(this.gl, {clearColor: [1,1,1,1]});
     this.renderer.prepareScene(this.scene);
-    this.resize();
 
     super.start();
-    console.log(this.scene)
   }
 
-  update (dt: number) {
-    if (!this.scene) {
-      return;
-    }
-
+  update (dt:number, time:number) {
     // Rotate object specified in UI controls
     this.rotateTargetObject();
 
     // Update all objects in the scene
-    this.scene.update();
+    this.scene.update(dt, time);
 
     // Update camera config in case changed
-    this.camera.fov = this.cameraConfig.fov;
-    this.camera.updateProjection();
-
-    // Update camera transformation based on control inputs.
-    this.controls?.update(dt);
+    this.player.camera.fov = this.cameraConfig.fov;
+    this.player.camera.updateProjection();
   }
 
   private rotateTargetObject() {
@@ -88,28 +81,21 @@ class App extends WebGlApplication {
 
   render() {
     if (this.renderer) {
-      this.renderer.render(this.scene, this.camera);
+      this.renderer.render(this.scene, this.player.camera);
     }
   }
 
-  resize() {
-    const w = this.canvas.clientWidth;
-    const h = this.canvas.clientHeight;
-    const aspectRatio = w / h;
-
-    if (this.camera && this.camera instanceof PerspectiveCamera) {
-      this.camera.aspect = aspectRatio;
-      this.camera.updateMatrix();
-    }
+  resize(aspectRatio: number) {
+    this.scene.resize(aspectRatio);
   }
 
   enableCamera() {
     this.canvas.requestPointerLock();
     document.addEventListener('pointerlockchange', () => {
       if (document.pointerLockElement === this.canvas) {
-        this.controls.enable();
+        this.player.controls.enable();
       } else {
-        this.controls.disable();
+        this.player.controls.disable();
       }
     })
   }
@@ -134,19 +120,33 @@ async function main () {
     max: 3
   });
 
-  const monkeyFolder = pane.addFolder({ title: "Transform"});
-  monkeyFolder.addBinding(app.rotatingObjectConfig, "name");
-  monkeyFolder.addBinding(app.rotatingObjectConfig, "rotationX", {
+  const objectFolder = pane.addFolder({ title: "Transform"});
+  objectFolder.addBinding(app.rotatingObjectConfig, "name");
+  objectFolder.addBinding(app.rotatingObjectConfig, "rotationX", {
     min: -90,
     max: 90
   });
-  monkeyFolder.addBinding(app.rotatingObjectConfig, "rotationY", {
+  objectFolder.addBinding(app.rotatingObjectConfig, "rotationY", {
     min: -90,
     max: 90
   });
-  monkeyFolder.addBinding(app.rotatingObjectConfig, "rotationZ", {
+  objectFolder.addBinding(app.rotatingObjectConfig, "rotationZ", {
     min: -90,
     max: 90
+  });
+
+  const sceneFolder = pane.addFolder({ title: "Scene"});
+  sceneFolder.addBinding(app.scene.world.gravity, "x", {
+    min: -10,
+    max: 10
+  });
+  sceneFolder.addBinding(app.scene.world.gravity, "y", {
+    min: -10,
+    max: 10
+  });
+  sceneFolder.addBinding(app.scene.world.gravity, "z", {
+    min: -10,
+    max: 10
   });
 }
 

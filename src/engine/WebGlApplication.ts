@@ -43,8 +43,15 @@ export abstract class WebGlApplication {
 
       gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
-      this.resize();
+      this.updateAspectRatio();
     }
+  }
+
+  private updateAspectRatio() {
+    const w = this.canvas.clientWidth;
+    const h = this.canvas.clientHeight;
+    const aspectRatio = w / h;
+    this.resize(aspectRatio);
   }
 
   /**
@@ -53,6 +60,7 @@ export abstract class WebGlApplication {
    * Must call `super.start()` in the extended class (at the end of the method).
    */
   public start () {
+    this.updateAspectRatio();
     requestAnimationFrame(this.internalUpdate);
   }
 
@@ -73,6 +81,6 @@ export abstract class WebGlApplication {
   /**
    * Resize code (e.g. update projection matrix)
    */
-  public abstract resize (): void;
+  public abstract resize (aspectRatio: number): void;
 
 }

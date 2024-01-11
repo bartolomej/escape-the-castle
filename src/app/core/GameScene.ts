@@ -1,6 +1,7 @@
 import {Scene} from "../../engine/Scene";
 import {GameObject} from "./GameObject";
 import * as CANNON from "cannon-es";
+import {Player} from "../objects/Player";
 
 export class GameScene extends Scene {
     world: CANNON.World;
@@ -8,7 +9,7 @@ export class GameScene extends Scene {
     constructor() {
         super();
         this.world = new CANNON.World({
-            gravity: new CANNON.Vec3(0, -9.82, 2),
+            gravity: new CANNON.Vec3(0, -9.82, 0),
         });
     }
 
@@ -27,13 +28,24 @@ export class GameScene extends Scene {
     /**
      * Update internal object state before rendering.
      */
-    public update(): void {
+    public update(dt: number, time: number): void {
         this.world.fixedStep();
 
         this.traverse({
             onEnter: node => {
                 if (node instanceof GameObject) {
-                    node.update();
+                    node.update(dt, time);
+                }
+            }
+        })
+    }
+
+    public resize(aspectRatio: number): void {
+        this.traverse({
+            onEnter: node => {
+                if (node instanceof Player) {
+                    node.camera.aspect = aspectRatio;
+                    node.camera.updateMatrix();
                 }
             }
         })

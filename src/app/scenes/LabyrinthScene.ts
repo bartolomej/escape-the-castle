@@ -3,6 +3,7 @@ import {GLTFLoader} from "../../engine/loaders/GLTFLoader";
 import {Wall} from "../objects/Wall";
 import * as CANNON from "cannon-es";
 import {Sphere} from "../objects/Sphere";
+import {Player} from "../objects/Player";
 
 export class LabyrinthScene extends GameScene {
     async start(): Promise<void> {
@@ -25,6 +26,11 @@ export class LabyrinthScene extends GameScene {
             radius: 0.1,
             physicsMaterial: movableObjectMaterial,
             translation: [3, 10, -5]
+        }));
+
+        this.addNode(new Player({
+            physicsMaterial: movableObjectMaterial,
+            translation: [0,2,0],
         }));
 
         this.world.addContactMaterial(new CANNON.ContactMaterial(
