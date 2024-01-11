@@ -6,6 +6,7 @@ import {AmbientLight} from "../../engine/lights/AmbientLight";
 import {DirectionalLight} from "../../engine/lights/DirectionalLight";
 import {Wall} from "../objects/Wall";
 import {Floor} from "../objects/Floor";
+import * as CANNON from "cannon-es";
 
 export class TestScene extends GameScene {
     async start(): Promise<void> {
@@ -21,21 +22,24 @@ export class TestScene extends GameScene {
 
         const gltfFloor = gltfScene.findNodesByName("Floor")[0];
 
-        this.addNode(new Floor(gltfFloor))
+        const floorMaterial = new CANNON.Material();
+        this.addNode(new Floor(gltfFloor, {physicsMaterial: floorMaterial}))
 
+        const movableObjectMaterial = new CANNON.Material();
         this.addNode(new Sphere({
-            translation: [3,10,-5]
+            physicsMaterial: movableObjectMaterial,
+            translation: [3, 10, -5]
         }));
 
         this.addNode(new Cube({
-            scale: [1,5,1],
-            translation: [-3,1,-5]
+            scale: [1, 5, 1],
+            translation: [-3, 1, -5]
         }));
 
         this.addNode(new Cube({
             name: "Stretched cube",
-            scale: [1,5,5],
-            translation: [-6,1,-5]
+            scale: [1, 5, 5],
+            translation: [-6, 1, -5]
         }));
 
         this.addNode(new AmbientLight({
@@ -45,8 +49,14 @@ export class TestScene extends GameScene {
         this.addNode(new DirectionalLight({
             color: [100, 100, 100],
             translation: [0, 10, 0],
-            direction: [1,1,0]
+            direction: [1, 1, 0]
         }));
+
+        this.world.addContactMaterial(new CANNON.ContactMaterial(
+            floorMaterial,
+            movableObjectMaterial,
+            {friction: 0.0, restitution: 0.8}
+        ));
 
         await super.start();
     }
