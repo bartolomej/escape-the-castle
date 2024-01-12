@@ -1,20 +1,19 @@
-import {GameObject} from "../core/GameObject";
+import {GameObject, GameObjectOptions} from "../core/GameObject";
 import {Object3D} from "../../engine/core/Object3D";
 import * as CANNON from "cannon-es";
-import {BufferView} from "../../engine/core/BufferView";
 import {meshToCannonShape} from "../utils";
 
-type WallOptions = {
+type KeyOptions = GameObjectOptions & {
     physicsMaterial: CANNON.Material;
 }
 
-export class Wall extends GameObject {
+export class Key extends GameObject {
     public body: CANNON.Body;
     private readonly physicsMaterial: CANNON.Material;
 
-    constructor(object: Object3D, options: WallOptions) {
+    constructor(object: Object3D, options: KeyOptions) {
         super();
-        Object.assign(this, object);
+        Object.assign(this, {...object, ...options});
         this.physicsMaterial = options.physicsMaterial;
     }
 
@@ -24,7 +23,8 @@ export class Wall extends GameObject {
         shape.setScale(new CANNON.Vec3(...this.scale));
 
         this.body = new CANNON.Body({
-            type: CANNON.BODY_TYPES.STATIC,
+            // TODO: Collision with walls (labyrinth) don't work properly (but they do with the player object)
+            mass: 0.01,
             material: this.physicsMaterial,
             position: new CANNON.Vec3(...this.translation),
             quaternion: new CANNON.Quaternion(...this.rotation),
@@ -34,6 +34,7 @@ export class Wall extends GameObject {
 
     update(): void {
         this.translation = this.body.position.toArray();
+        this.rotation = this.body.quaternion.toArray();
         this.updateMatrix();
     }
 

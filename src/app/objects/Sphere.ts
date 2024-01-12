@@ -6,18 +6,21 @@ import * as CANNON from "cannon-es";
 export type SphereOptions = GameObjectOptions & {
     physicsMaterial: CANNON.Material;
     radius: number;
+    mass?: number;
 }
 
 export class Sphere extends GameObject {
     public body: CANNON.Body;
     private readonly physicsMaterial: CANNON.Material;
     private readonly radius: number;
+    private readonly mass: number;
 
     constructor(options: SphereOptions) {
         super(options);
         this.name = options.name ?? "Sphere";
         this.physicsMaterial = options.physicsMaterial;
         this.radius = options.radius;
+        this.mass = options.mass ?? 0.1;
     }
 
     async start(): Promise<void> {
@@ -33,7 +36,7 @@ export class Sphere extends GameObject {
         });
 
         this.body = new CANNON.Body({
-            mass: 0.01,
+            mass: this.mass,
             material: this.physicsMaterial,
             shape: new CANNON.Sphere(this.radius),
             position: new CANNON.Vec3(...this.translation),

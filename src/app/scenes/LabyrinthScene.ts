@@ -4,41 +4,53 @@ import {Wall} from "../objects/Wall";
 import * as CANNON from "cannon-es";
 import {Sphere} from "../objects/Sphere";
 import {Player} from "../objects/Player";
+import {Key} from "../objects/Key";
 
 export class LabyrinthScene extends GameScene {
     async start(): Promise<void> {
-        const gltfLoader = new GLTFLoader();
-        await gltfLoader.load('./models/level.gltf');
-        const gltfScene = await gltfLoader.loadScene(gltfLoader.defaultScene);
+        const labyrinthMeshLoader = new GLTFLoader();
+        await labyrinthMeshLoader.load('./models/level.gltf');
+        const labyrinthMeshScene = await labyrinthMeshLoader.loadScene(labyrinthMeshLoader.defaultScene);
 
+        const keyMeshLoader = new GLTFLoader();
+        await keyMeshLoader.load("./models/key.gltf");
+        const keyMeshScene = await keyMeshLoader.loadScene(keyMeshLoader.defaultScene);
+
+        const keyMesh = keyMeshScene.findNodesByName("Key")[0];
+
+        if (!keyMesh) {
+            throw new Error("Key not found in the loaded scene")
+        }
+
+        const propMaterial = new CANNON.Material();
         const wallMaterial = new CANNON.Material();
-        // TODO: Use a different material for props if needed
-        const movableObjectMaterial = new CANNON.Material();
+        const playerMaterial = new CANNON.Material();
 
-        this.addNode(...gltfScene.findNodesByName("Light"))
+        const keyScale = 0.05;
+        this.addNode(new Key(keyMesh, {
+            physicsMaterial: propMaterial,
+            translation: [0, 2.5, 0],
+            scale: [keyScale, keyScale, keyScale]
+        }));
 
-        const labyrinth = gltfScene.findNodesByName("Plane")[0];
+        this.addNode(...labyrinthMeshScene.findNodesByName("Light"))
 
-        this.addNode(new Wall(labyrinth, {
+        const labyrinthMesh = labyrinthMeshScene.findNodesByName("Plane")[0];
+
+        this.addNode(new Wall(labyrinthMesh, {
             physicsMaterial: wallMaterial
         }));
 
         this.addNode(new Sphere({
             radius: 0.1,
-            physicsMaterial: movableObjectMaterial,
-            translation: [3, 10, -5]
+            physicsMaterial: propMaterial,
+            translation: [2, 2, 2]
         }));
 
         this.addNode(new Player({
-            physicsMaterial: movableObjectMaterial,
-            translation: [0,2,0],
+            physicsMaterial: playerMaterial,
+            translation: [0, 2, 0],
         }));
-
-        this.world.addContactMaterial(new CANNON.ContactMaterial(
-            wallMaterial,
-            movableObjectMaterial,
-            {friction: 1, restitution: 0}
-        ));
 
         await super.start();
     }

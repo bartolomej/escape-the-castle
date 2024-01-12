@@ -17,7 +17,8 @@ export class Player extends Sphere {
         super({
             ...options,
             name: "Player",
-            radius: 0.2
+            radius: 0.2,
+            mass: 10
         });
         this.camera = new PerspectiveCamera({
             fov: 1.8,
@@ -68,6 +69,7 @@ class PlayerControls {
 
         const forward = vec3.fromValues(-Math.sin(rotation[1]), 0, -Math.cos(rotation[1]));
         const right = vec3.fromValues(Math.cos(rotation[1]), 0, -Math.sin(rotation[1]));
+        const up = vec3.fromValues(0, 5, 0);
 
         const inputVelocity = vec3.create();
         if (this.pressedKeys['KeyW']) {
@@ -81,6 +83,9 @@ class PlayerControls {
         }
         if (this.pressedKeys['KeyA']) {
             vec3.sub(inputVelocity, inputVelocity, right);
+        }
+        if (this.pressedKeys['Space']) {
+            vec3.add(inputVelocity, inputVelocity, up);
         }
 
         vec3.scale(inputVelocity, inputVelocity, velocityFactor);
