@@ -1,6 +1,5 @@
 import { mat4, quat, vec3 } from "gl-matrix";
 import { Object3D } from "../core/Object3D";
-import {Camera} from "../cameras/Camera";
 
 type FirstPersonControlsOptions = {
   velocity?: vec3,
@@ -10,7 +9,7 @@ type FirstPersonControlsOptions = {
   mouseSensitivity?: number,
 }
 
-export default class FirstPersonControls {
+export class FirstPersonControls {
   private readonly keys: { [key: string]: boolean };
   public velocity: vec3;
   private friction: number;
