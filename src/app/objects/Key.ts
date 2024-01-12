@@ -24,9 +24,9 @@ export class Key extends GameObject {
 
         this.body = new CANNON.Body({
             // TODO: Collision with walls (labyrinth) don't work properly (but they do with the player object)
-            mass: 0.01,
+            mass: 0,
             material: this.physicsMaterial,
-            position: new CANNON.Vec3(...this.translation),
+            position: new CANNON.Vec3(...this.generateCoordinates().toArray()/*...this.translation*/),
             quaternion: new CANNON.Quaternion(...this.rotation),
             shape
         });
@@ -36,6 +36,21 @@ export class Key extends GameObject {
         this.translation = this.body.position.toArray();
         this.rotation = this.body.quaternion.toArray();
         this.updateMatrix();
+
+        this.pickedUp();
     }
 
+    generateCoordinates(): CANNON.Vec3 {
+        const x = Math.floor(Math.random() * 5) + 1;
+        const z = Math.floor(Math.random() * 5) + 1;
+        return new CANNON.Vec3(x, 0, z);
+    }
+
+    pickedUp(): void {
+
+        this.body.addEventListener("collide", () => {
+            //console.log("collide");
+            this.body.position = new CANNON.Vec3(...this.generateCoordinates().toArray()/*...this.translation*/)
+        });
+    }
 }

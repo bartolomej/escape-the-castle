@@ -29,7 +29,8 @@ export class LabyrinthScene extends GameScene {
         const keyScale = 0.05;
         this.addNode(new Key(keyMesh, {
             physicsMaterial: propMaterial,
-            translation: [0, 2.5, 0],
+            translation: [0, 2, 0],
+            rotation: [0, 0, 0, 0],
             scale: [keyScale, keyScale, keyScale]
         }));
 
@@ -44,7 +45,7 @@ export class LabyrinthScene extends GameScene {
         this.addNode(new Sphere({
             radius: 0.1,
             physicsMaterial: propMaterial,
-            translation: [2, 2, 2]
+            translation: [2, 2, 2],
         }));
 
         this.addNode(new Player({
