@@ -7,6 +7,7 @@ import {DirectionalLight} from "../../engine/lights/DirectionalLight";
 import {Wall} from "../objects/Wall";
 import {Floor} from "../objects/Floor";
 import * as CANNON from "cannon-es";
+import {Player} from "../objects/Player";
 
 export class TestScene extends GameScene {
     async start(): Promise<void> {
@@ -59,6 +60,11 @@ export class TestScene extends GameScene {
             movableObjectMaterial,
             {friction: 0.0, restitution: 1}
         ));
+
+        this.addNode(new Player({
+            physicsMaterial: movableObjectMaterial,
+            translation: [0,2,0],
+        }));
 
         await super.start();
     }
