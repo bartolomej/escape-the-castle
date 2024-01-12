@@ -24,7 +24,7 @@ export class Scene {
         }
     }
 
-    traverseNode(object: Object3D, options: TraversalOptions) {
+    private traverseNode(object: Object3D, options: TraversalOptions) {
         options?.onEnter?.(object);
         for (const child of object.children) {
             this.traverseNode(child, options);

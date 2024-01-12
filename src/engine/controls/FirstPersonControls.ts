@@ -1,6 +1,5 @@
 import { mat4, quat, vec3 } from "gl-matrix";
 import { Object3D } from "../core/Object3D";
-import {Camera} from "../cameras/Camera";
 
 type FirstPersonControlsOptions = {
   velocity?: vec3,
@@ -10,30 +9,30 @@ type FirstPersonControlsOptions = {
   mouseSensitivity?: number,
 }
 
-export default class FirstPersonControls {
-  private readonly keys: { [key: string]: boolean };
-  private velocity: vec3;
+export class FirstPersonControls {
+  private readonly pressedKeys: { [key: string]: boolean };
+  public velocity: vec3;
   private friction: number;
   private acceleration: number;
   private maxSpeed: number;
   private mouseSensitivity: number;
   private rotation: vec3 = [0,0,0]; // euler rotation vector with angles x,y,z
 
-  constructor (private readonly camera: Object3D, options: FirstPersonControlsOptions = {}) {
+  constructor (private readonly object: Object3D, options: FirstPersonControlsOptions = {}) {
     this.velocity = options.velocity || vec3.create();
     this.friction = options.friction || 0.2;
-    this.acceleration = options.acceleration || 20;
+    this.acceleration = options.acceleration || 1;
     this.maxSpeed = options.maxSpeed || 5;
     this.mouseSensitivity = options.mouseSensitivity || 0.01;
 
     this.mousemoveHandler = this.mousemoveHandler.bind(this);
     this.keydownHandler = this.keydownHandler.bind(this);
     this.keyupHandler = this.keyupHandler.bind(this);
-    this.keys = {};
+    this.pressedKeys = {};
   }
 
   update (dt: number) {
-    const { camera, velocity, acceleration, friction, maxSpeed, rotation } = this;
+    const { object, velocity, acceleration, friction, maxSpeed, rotation } = this;
 
     const forward = vec3.set(vec3.create(),
       -Math.sin(rotation[1]), 0, -Math.cos(rotation[1]));
@@ -42,16 +41,16 @@ export default class FirstPersonControls {
 
     // 1: add movement acceleration
     let acc = vec3.create();
-    if (this.keys['KeyW']) {
+    if (this.pressedKeys['KeyW']) {
       vec3.add(acc, acc, forward);
     }
-    if (this.keys['KeyS']) {
+    if (this.pressedKeys['KeyS']) {
       vec3.sub(acc, acc, forward);
     }
-    if (this.keys['KeyD']) {
+    if (this.pressedKeys['KeyD']) {
       vec3.add(acc, acc, right);
     }
-    if (this.keys['KeyA']) {
+    if (this.pressedKeys['KeyA']) {
       vec3.sub(acc, acc, right);
     }
 
@@ -59,10 +58,10 @@ export default class FirstPersonControls {
     vec3.scaleAndAdd(velocity, velocity, acc, dt * acceleration);
 
     // 3: if no movement, apply friction
-    if (!this.keys['KeyW'] &&
-      !this.keys['KeyS'] &&
-      !this.keys['KeyD'] &&
-      !this.keys['KeyA']) {
+    if (!this.pressedKeys['KeyW'] &&
+      !this.pressedKeys['KeyS'] &&
+      !this.pressedKeys['KeyD'] &&
+      !this.pressedKeys['KeyA']) {
       vec3.scale(velocity, velocity, 1 - friction);
     }
 
@@ -73,15 +72,10 @@ export default class FirstPersonControls {
     }
 
     // 5: update translation
-    vec3.scaleAndAdd(camera.translation, camera.translation, velocity, dt);
+    vec3.scaleAndAdd(object.translation, object.translation, velocity, dt);
 
     // 6: update the final transform
-    const t = camera.matrix;
-    mat4.identity(t);
-    mat4.translate(t, t, camera.translation);
-    mat4.rotateY(t, t, camera.rotation[1]);
-    mat4.rotateX(t, t, camera.rotation[0]);
-    camera.updateMatrix();
+    object.updateMatrix();
   }
 
   enable () {
@@ -95,15 +89,15 @@ export default class FirstPersonControls {
     document.removeEventListener('keydown', this.keydownHandler);
     document.removeEventListener('keyup', this.keyupHandler);
 
-    for (let key in this.keys) {
-      this.keys[key] = false;
+    for (let key in this.pressedKeys) {
+      this.pressedKeys[key] = false;
     }
   }
 
   private mousemoveHandler (e: MouseEvent) {
     const dx = e.movementX;
     const dy = e.movementY;
-    const { camera, rotation, mouseSensitivity } = this;
+    const { object, rotation, mouseSensitivity } = this;
 
     rotation[0] -= dy * mouseSensitivity;
     rotation[1] -= dx * mouseSensitivity;
@@ -123,19 +117,19 @@ export default class FirstPersonControls {
 
     const [x,y,z] = rotation.map((x: number) => x * 180 / Math.PI);
     const q = quat.fromEuler(quat.create(), x, y, z);
-    const v = vec3.clone(camera.translation);
-    const s = vec3.clone(camera.scale);
-    mat4.fromRotationTranslationScale(camera.matrix, q, v, s);
+    const v = vec3.clone(object.translation);
+    const s = vec3.clone(object.scale);
+    mat4.fromRotationTranslationScale(object.matrix, q, v, s);
 
-    camera.updateTransform();
+    object.updateTransform();
   }
 
   private keydownHandler (e: KeyboardEvent) {
-    this.keys[e.code] = true;
+    this.pressedKeys[e.code] = true;
   }
 
   private keyupHandler (e: KeyboardEvent) {
-    this.keys[e.code] = false;
+    this.pressedKeys[e.code] = false;
   }
 
 }

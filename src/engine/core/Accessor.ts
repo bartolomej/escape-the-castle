@@ -6,6 +6,7 @@ import {BufferView} from "./BufferView";
  */
 export class Accessor {
     bufferView: BufferView;
+    // TODO: Can we remove this field
     byteOffset: number;
     // https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#accessor-data-types
     componentType: number;

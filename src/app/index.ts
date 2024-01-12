@@ -1,36 +1,28 @@
 import "./style.css"
-import Application from "../engine/Application";
+import {WebGlApplication} from "../engine/WebGlApplication";
 import {Pane} from 'tweakpane';
 
 // @ts-ignore
 import { WebGLRenderer } from "../engine/renderers/webgl/WebGLRenderer";
-import { Scene } from "../engine/Scene";
-import { GLTFLoader } from "../engine/loaders/GLTFLoader";
-import FirstPersonControls from "../engine/controls/FirstPersonControls";
-import { PerspectiveCamera } from "../engine/cameras/PerspectiveCamera";
-import ShaderMaterial from "../engine/materials/ShaderMaterial";
 import {quat} from "gl-matrix";
-import {SpherePrimitive} from "../engine/geometries/SpherePrimitive";
-import {Object3D} from "../engine/core/Object3D";
-import {Mesh} from "../engine/core/Mesh";
-import {CubePrimitive} from "../engine/geometries/CubePrimitive";
-import {AmbientLight} from "../engine/lights/AmbientLight";
-import {DirectionalLight} from "../engine/lights/DirectionalLight";
+import {TestScene} from "./scenes/TestScene";
+import {GameScene} from "./core/GameScene";
+import {LabyrinthScene} from "./scenes/LabyrinthScene";
+import {Player} from "./objects/Player";
 
 const useTestScene = false;
 
-class App extends Application {
+class App extends WebGlApplication {
 
   private renderer: WebGLRenderer;
-  private scene: Scene;
-  public camera: PerspectiveCamera;
-  private controls: FirstPersonControls;
-  private shaderMaterial: ShaderMaterial;
+  public scene: GameScene;
+  public player: Player;
 
   cameraConfig = {
     fov: 1.8,
   }
-  monkeyConfig = {
+  rotatingObjectConfig = {
+    name: "Monkey",
     rotationX: 0,
     rotationY: 0,
     rotationZ: 0
@@ -38,81 +30,83 @@ class App extends Application {
 
   async start() {
     if (useTestScene) {
-      this.scene = await RoomTestScene.load();
+      this.scene = new TestScene();
     } else {
-      //this.scene = await LabyrinthScene.load();
-      this.scene = await KeyScene.load();
+      this.scene = new LabyrinthScene();
     }
 
-    this.camera = new PerspectiveCamera({
-      fov: this.cameraConfig.fov,
-      translation: [0,2,0],
-    });
-    this.controls = new FirstPersonControls(this.camera);
+    // Loads the scene nodes
+    await this.scene.start();
+    // Log scene in console for easier debugging.
+    console.log(this.scene);
+
+    const player = this.scene.findNodes(node => node instanceof Player)[0];
+    if (player) {
+      this.player = player as Player;
+    } else {
+      throw new Error("Player not found in the scene");
+    }
 
     this.renderer = new WebGLRenderer(this.gl, {clearColor: [1,1,1,1]});
     this.renderer.prepareScene(this.scene);
-    this.resize();
 
-    console.log(this.scene)
+    super.start();
   }
 
-  update (dt: number, t: number) {
-    if (!this.scene) {
-      return;
-    }
+  update (dt:number, time:number) {
+    // Rotate object specified in UI controls
+    this.rotateTargetObject();
 
-    const monkey = this.scene.findNodesByName("Suzanne")[0];
-    if (monkey) {
+    // Update all objects in the scene
+    this.scene.update(dt, time);
+
+    // Update camera config in case changed
+    this.player.camera.fov = this.cameraConfig.fov;
+    this.player.camera.updateProjection();
+  }
+
+  private rotateTargetObject() {
+    const matchingObjects = this.scene.findNodesByName(this.rotatingObjectConfig.name);
+
+    for (const object of matchingObjects) {
       quat.fromEuler(
-          monkey.rotation,
-          this.monkeyConfig.rotationX,
-          this.monkeyConfig.rotationY,
-          this.monkeyConfig.rotationZ
+          object.rotation,
+          this.rotatingObjectConfig.rotationX,
+          this.rotatingObjectConfig.rotationY,
+          this.rotatingObjectConfig.rotationZ
       );
-      monkey.updateMatrix();
+      object.updateMatrix();
     }
-
-    this.camera.fov = this.cameraConfig.fov;
-    this.camera.updateProjection();
-
-    this.controls?.update(dt);
-    this.shaderMaterial?.setUniform("time", t);
   }
 
   render() {
     if (this.renderer) {
-      this.renderer.render(this.scene, this.camera);
+      this.renderer.render(this.scene, this.player.camera);
     }
   }
 
-  resize() {
-    const w = this.canvas.clientWidth;
-    const h = this.canvas.clientHeight;
-    const aspectRatio = w / h;
-
-    if (this.camera && this.camera instanceof PerspectiveCamera) {
-      this.camera.aspect = aspectRatio;
-      this.camera.updateMatrix();
-    }
+  resize(aspectRatio: number) {
+    this.scene.resize(aspectRatio);
   }
 
   enableCamera() {
     this.canvas.requestPointerLock();
     document.addEventListener('pointerlockchange', () => {
       if (document.pointerLockElement === this.canvas) {
-        this.controls.enable();
+        this.player.controls.enable();
       } else {
-        this.controls.disable();
+        this.player.controls.disable();
       }
     })
   }
 
 }
 
-function main () {
+async function main () {
   const canvas = document.querySelector('canvas');
   const app = new App(canvas);
+
+  await app.start()
 
   const pane = new Pane();
 
@@ -126,114 +120,34 @@ function main () {
     max: 3
   });
 
-  const monkeyFolder = pane.addFolder({ title: "Monkey"});
-  monkeyFolder.addBinding(app.monkeyConfig, "rotationX", {
+  const objectFolder = pane.addFolder({ title: "Transform"});
+  objectFolder.addBinding(app.rotatingObjectConfig, "name");
+  objectFolder.addBinding(app.rotatingObjectConfig, "rotationX", {
     min: -90,
     max: 90
   });
-  monkeyFolder.addBinding(app.monkeyConfig, "rotationY", {
+  objectFolder.addBinding(app.rotatingObjectConfig, "rotationY", {
     min: -90,
     max: 90
   });
-  monkeyFolder.addBinding(app.monkeyConfig, "rotationZ", {
+  objectFolder.addBinding(app.rotatingObjectConfig, "rotationZ", {
     min: -90,
     max: 90
+  });
+
+  const sceneFolder = pane.addFolder({ title: "Scene"});
+  sceneFolder.addBinding(app.scene.world.gravity, "x", {
+    min: -10,
+    max: 10
+  });
+  sceneFolder.addBinding(app.scene.world.gravity, "y", {
+    min: -10,
+    max: 10
+  });
+  sceneFolder.addBinding(app.scene.world.gravity, "z", {
+    min: -10,
+    max: 10
   });
 }
 
 document.addEventListener('DOMContentLoaded', main);
-
-class RoomTestScene extends Scene {
-  static async load() {
-    const gltfLoader = new GLTFLoader();
-    await gltfLoader.load('./models/test.gltf');
-    const gltfScene = await gltfLoader.loadScene(gltfLoader.defaultScene);
-    const roomScene = new RoomTestScene();
-    roomScene.addNode(...gltfScene.nodes);
-    return roomScene;
-  }
-
-  constructor() {
-    super();
-    this.init();
-  }
-
-  private init() {
-    console.log("initing", this.nodes)
-    this.addNode(new Object3D({
-      name: "Sphere",
-      mesh: new Mesh({
-        primitives: [
-          new SpherePrimitive({
-            radius: 1,
-            subdivisionsHeight: 100,
-            subdivisionsAxis: 100
-          })
-        ]
-      }),
-      translation: [3,1,-5]
-    }));
-
-    this.addNode(new Object3D({
-      name: "Cube",
-      mesh: new Mesh({
-        primitives: [
-          new CubePrimitive({
-            size: 1,
-          })
-        ]
-      }),
-      scale: [1,5,1],
-      translation: [-3,1,-5]
-    }));
-
-    this.addNode(new Object3D({
-      name: "Manual wall",
-      mesh: new Mesh({
-        primitives: [
-          new CubePrimitive({
-            size: 1,
-          })
-        ]
-      }),
-      scale: [1,5,5],
-      translation: [-6,1,-5]
-    }));
-
-  }
-}
-
-class LabyrinthScene extends Scene {
-  static async load() {
-    const gltfLoader = new GLTFLoader();
-    await gltfLoader.load('./models/level.gltf');
-    const gltfScene = await gltfLoader.loadScene(gltfLoader.defaultScene);
-    const labyrinthScene = new LabyrinthScene();
-    labyrinthScene.addNode(...gltfScene.nodes)
-    return labyrinthScene;
-  }
-
-}
-
-class KeyScene extends Scene {
-  static async load() {
-    const gltfLoader = new GLTFLoader();
-    await gltfLoader.load('./models/key.gltf');
-    const gltfScene = await gltfLoader.loadScene(gltfLoader.defaultScene);
-    const keyScene = new KeyScene();
-    keyScene.addNode(...gltfScene.nodes);
-
-    keyScene.addNode(new AmbientLight({
-      color: [0, 0, 100],
-    }));
-
-    keyScene.addNode(new DirectionalLight({
-      color: [100, 100, 100],
-      translation: [0, 10, 0],
-      direction: [1,1,0]
-    }));
-
-    return keyScene;
-  }
-}
-

@@ -333,6 +333,8 @@ export class GLTFLoader {
             node = await this.loadLight(light)
         }
 
+        node.name = gltfSpec.name;
+
         if (gltfSpec.matrix) {
             node.matrix = gltfSpec.matrix;
             node.updateTransform();
@@ -360,7 +362,7 @@ export class GLTFLoader {
         return node;
     }
 
-    async loadScene(nameOrIndex: string | number) {
+    async loadScene(nameOrIndex: string | number): Promise<Scene> {
         const gltfSpec = this.findByNameOrIndex(this.gltf.scenes, nameOrIndex);
         if (this.cache.has(gltfSpec)) {
             return this.cache.get(gltfSpec);
