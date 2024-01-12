@@ -43,7 +43,6 @@ export class Sphere extends GameObject {
 
     update(dt: number, time: number): void {
         this.translation = this.body.position.toArray();
-        // TODO: Enable this if we need to simulate rotation as well
         // this.rotation = this.body.quaternion.toArray();
         this.updateMatrix();
     }

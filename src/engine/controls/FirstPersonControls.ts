@@ -75,11 +75,6 @@ export class FirstPersonControls {
     vec3.scaleAndAdd(object.translation, object.translation, velocity, dt);
 
     // 6: update the final transform
-    const t = object.matrix;
-    mat4.identity(t);
-    mat4.translate(t, t, object.translation);
-    mat4.rotateY(t, t, object.rotation[1]);
-    mat4.rotateX(t, t, object.rotation[0]);
     object.updateMatrix();
   }
 

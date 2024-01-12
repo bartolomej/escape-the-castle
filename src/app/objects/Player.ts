@@ -1,6 +1,6 @@
 import {GameObjectOptions} from "../core/GameObject";
 import {PerspectiveCamera} from "../../engine/cameras/PerspectiveCamera";
-import { vec3 } from "gl-matrix";
+import {quat, vec3} from "gl-matrix";
 import * as CANNON from "cannon-es"
 import {Sphere} from "./Sphere";
 
@@ -34,8 +34,10 @@ export class Player extends Sphere {
     }
 
     update(dt: number, time: number): void {
-        // TODO: Fix player movement to work with physics simulation
         this.controls.update(dt);
+        const [x,y,z] = this.controls.rotation.map((x: number) => x * 180 / Math.PI);
+        this.camera.rotation = quat.fromEuler(quat.create(), x, y, z);
+        this.camera.updateMatrix();
         super.update(dt, time);
     }
 }
@@ -55,7 +57,7 @@ class PlayerControls {
     private acceleration: number;
     private maxSpeed: number;
     private mouseSensitivity: number;
-    private rotation: vec3 = [0,0,0]; // euler rotation vector with angles x,y,z
+    public rotation: vec3 = [0,0,0]; // euler rotation vector with angles x,y,z
 
     constructor (private readonly body: CANNON.Body, options: PlayerControlsOptions = {}) {
         this.velocity = options.velocity || vec3.create();
@@ -116,11 +118,6 @@ class PlayerControls {
         // vec3.scaleAndAdd(object.translation, object.translation, velocity, dt);
 
         // 6: update the final transform
-        // const t = object.matrix;
-        // mat4.identity(t);
-        // mat4.translate(t, t, object.translation);
-        // mat4.rotateY(t, t, object.rotation[1]);
-        // mat4.rotateX(t, t, object.rotation[0]);
         // object.updateMatrix();
     }
 
@@ -143,31 +140,26 @@ class PlayerControls {
     private mousemoveHandler (e: MouseEvent) {
         const dx = e.movementX;
         const dy = e.movementY;
-        const { body, rotation, mouseSensitivity } = this;
+        const { rotation, mouseSensitivity } = this;
 
-        // rotation[0] -= dy * mouseSensitivity;
-        // rotation[1] -= dx * mouseSensitivity;
-        //
-        // const pi = Math.PI;
-        // const twopi = pi * 2;
-        // const halfpi = pi / 2;
-        //
-        // if (rotation[0] > halfpi) {
-        //     rotation[0] = halfpi;
-        // }
-        // if (rotation[0] < -halfpi) {
-        //     rotation[0] = -halfpi;
-        // }
-        //
-        // rotation[1] = ((rotation[1] % twopi) + twopi) % twopi;
-        //
-        // const [x,y,z] = rotation.map((x: number) => x * 180 / Math.PI);
-        // const q = quat.fromEuler(quat.create(), x, y, z);
-        // const v = vec3.clone(object.translation);
-        // const s = vec3.clone(object.scale);
-        // mat4.fromRotationTranslationScale(object.matrix, q, v, s);
-        //
-        // object.updateTransform();
+        rotation[0] -= dy * mouseSensitivity;
+        rotation[1] -= dx * mouseSensitivity;
+
+        const pi = Math.PI;
+        const twopi = pi * 2;
+        const halfpi = pi / 2;
+
+        if (rotation[0] > halfpi) {
+            rotation[0] = halfpi;
+        }
+        if (rotation[0] < -halfpi) {
+            rotation[0] = -halfpi;
+        }
+
+        rotation[1] = ((rotation[1] % twopi) + twopi) % twopi;
+
+
+        // TODO: Update transform of the object/camera?
     }
 
     private keydownHandler (e: KeyboardEvent) {
