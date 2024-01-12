@@ -34,7 +34,7 @@ export class Player extends Sphere {
     }
 
     update(dt: number, time: number): void {
-        this.controls.update(dt);
+        this.controls.update();
         const [x,y,z] = this.controls.rotation.map((x: number) => x * 180 / Math.PI);
         this.camera.rotation = quat.fromEuler(quat.create(), x, y, z);
         this.camera.updateMatrix();
@@ -43,82 +43,50 @@ export class Player extends Sphere {
 }
 
 type PlayerControlsOptions = {
-    velocity?: vec3,
-    friction?: number,
-    acceleration?: number,
-    maxSpeed?: number,
+    velocityFactor?: number,
     mouseSensitivity?: number,
 }
 
 class PlayerControls {
-    private readonly keys: { [key: string]: boolean };
-    public velocity: vec3;
-    private friction: number;
-    private acceleration: number;
-    private maxSpeed: number;
+    private readonly pressedKeys: { [key: string]: boolean };
+    public velocityFactor: number;
     private mouseSensitivity: number;
     public rotation: vec3 = [0,0,0]; // euler rotation vector with angles x,y,z
 
     constructor (private readonly body: CANNON.Body, options: PlayerControlsOptions = {}) {
-        this.velocity = options.velocity || vec3.create();
-        this.friction = options.friction || 0.2;
-        this.acceleration = options.acceleration || 1;
-        this.maxSpeed = options.maxSpeed || 5;
+        this.velocityFactor = options.velocityFactor ?? 0.04;
         this.mouseSensitivity = options.mouseSensitivity || 0.01;
 
         this.mousemoveHandler = this.mousemoveHandler.bind(this);
         this.keydownHandler = this.keydownHandler.bind(this);
         this.keyupHandler = this.keyupHandler.bind(this);
-        this.keys = {};
+        this.pressedKeys = {};
     }
 
-    update (dt: number) {
-        const { body, velocity, acceleration, friction, maxSpeed, rotation } = this;
+    update () {
+        const { body, velocityFactor, rotation } = this;
 
         const forward = vec3.fromValues(-Math.sin(rotation[1]), 0, -Math.cos(rotation[1]));
         const right = vec3.fromValues(Math.cos(rotation[1]), 0, -Math.sin(rotation[1]));
 
-        // 1: add movement acceleration
-        let acc = vec3.create();
-        if (this.keys['KeyW']) {
-            vec3.add(acc, acc, forward);
+        const inputVelocity = vec3.create();
+        if (this.pressedKeys['KeyW']) {
+            vec3.add(inputVelocity, inputVelocity, forward);
         }
-        if (this.keys['KeyS']) {
-            vec3.sub(acc, acc, forward);
+        if (this.pressedKeys['KeyS']) {
+            vec3.sub(inputVelocity, inputVelocity, forward);
         }
-        if (this.keys['KeyD']) {
-            vec3.add(acc, acc, right);
+        if (this.pressedKeys['KeyD']) {
+            vec3.add(inputVelocity, inputVelocity, right);
         }
-        if (this.keys['KeyA']) {
-            vec3.sub(acc, acc, right);
-        }
-
-        // 2: update velocity
-        const inputVelocity = vec3.scale(vec3.create(), acc, dt);
-        // vec3.scaleAndAdd(velocity, velocity, acc, dt * acceleration);
-
-        // 3: if no movement, apply friction
-        if (!this.keys['KeyW'] &&
-            !this.keys['KeyS'] &&
-            !this.keys['KeyD'] &&
-            !this.keys['KeyA']) {
-            // vec3.scale(velocity, velocity, 1 - friction);
+        if (this.pressedKeys['KeyA']) {
+            vec3.sub(inputVelocity, inputVelocity, right);
         }
 
-        // 4: limit speed
-        const len = vec3.len(velocity);
-        if (len > maxSpeed) {
-            // vec3.scale(velocity, velocity, maxSpeed / len);
-        }
+        vec3.scale(inputVelocity, inputVelocity, velocityFactor);
 
 
-        // 5: update translation
         body.velocity = body.velocity.vadd(new CANNON.Vec3(...inputVelocity));
-        // body.position.addScaledVector(dt, new CANNON.Vec3(...velocity));
-        // vec3.scaleAndAdd(object.translation, object.translation, velocity, dt);
-
-        // 6: update the final transform
-        // object.updateMatrix();
     }
 
     enable () {
@@ -132,8 +100,8 @@ class PlayerControls {
         document.removeEventListener('keydown', this.keydownHandler);
         document.removeEventListener('keyup', this.keyupHandler);
 
-        for (let key in this.keys) {
-            this.keys[key] = false;
+        for (let key in this.pressedKeys) {
+            this.pressedKeys[key] = false;
         }
     }
 
@@ -157,17 +125,14 @@ class PlayerControls {
         }
 
         rotation[1] = ((rotation[1] % twopi) + twopi) % twopi;
-
-
-        // TODO: Update transform of the object/camera?
     }
 
     private keydownHandler (e: KeyboardEvent) {
-        this.keys[e.code] = true;
+        this.pressedKeys[e.code] = true;
     }
 
     private keyupHandler (e: KeyboardEvent) {
-        this.keys[e.code] = false;
+        this.pressedKeys[e.code] = false;
     }
 
 }

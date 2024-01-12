@@ -10,7 +10,7 @@ type FirstPersonControlsOptions = {
 }
 
 export class FirstPersonControls {
-  private readonly keys: { [key: string]: boolean };
+  private readonly pressedKeys: { [key: string]: boolean };
   public velocity: vec3;
   private friction: number;
   private acceleration: number;
@@ -28,7 +28,7 @@ export class FirstPersonControls {
     this.mousemoveHandler = this.mousemoveHandler.bind(this);
     this.keydownHandler = this.keydownHandler.bind(this);
     this.keyupHandler = this.keyupHandler.bind(this);
-    this.keys = {};
+    this.pressedKeys = {};
   }
 
   update (dt: number) {
@@ -41,16 +41,16 @@ export class FirstPersonControls {
 
     // 1: add movement acceleration
     let acc = vec3.create();
-    if (this.keys['KeyW']) {
+    if (this.pressedKeys['KeyW']) {
       vec3.add(acc, acc, forward);
     }
-    if (this.keys['KeyS']) {
+    if (this.pressedKeys['KeyS']) {
       vec3.sub(acc, acc, forward);
     }
-    if (this.keys['KeyD']) {
+    if (this.pressedKeys['KeyD']) {
       vec3.add(acc, acc, right);
     }
-    if (this.keys['KeyA']) {
+    if (this.pressedKeys['KeyA']) {
       vec3.sub(acc, acc, right);
     }
 
@@ -58,10 +58,10 @@ export class FirstPersonControls {
     vec3.scaleAndAdd(velocity, velocity, acc, dt * acceleration);
 
     // 3: if no movement, apply friction
-    if (!this.keys['KeyW'] &&
-      !this.keys['KeyS'] &&
-      !this.keys['KeyD'] &&
-      !this.keys['KeyA']) {
+    if (!this.pressedKeys['KeyW'] &&
+      !this.pressedKeys['KeyS'] &&
+      !this.pressedKeys['KeyD'] &&
+      !this.pressedKeys['KeyA']) {
       vec3.scale(velocity, velocity, 1 - friction);
     }
 
@@ -89,8 +89,8 @@ export class FirstPersonControls {
     document.removeEventListener('keydown', this.keydownHandler);
     document.removeEventListener('keyup', this.keyupHandler);
 
-    for (let key in this.keys) {
-      this.keys[key] = false;
+    for (let key in this.pressedKeys) {
+      this.pressedKeys[key] = false;
     }
   }
 
@@ -125,11 +125,11 @@ export class FirstPersonControls {
   }
 
   private keydownHandler (e: KeyboardEvent) {
-    this.keys[e.code] = true;
+    this.pressedKeys[e.code] = true;
   }
 
   private keyupHandler (e: KeyboardEvent) {
-    this.keys[e.code] = false;
+    this.pressedKeys[e.code] = false;
   }
 
 }

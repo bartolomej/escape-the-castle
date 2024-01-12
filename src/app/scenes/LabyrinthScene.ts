@@ -12,6 +12,7 @@ export class LabyrinthScene extends GameScene {
         const gltfScene = await gltfLoader.loadScene(gltfLoader.defaultScene);
 
         const wallMaterial = new CANNON.Material();
+        // TODO: Use a different material for props if needed
         const movableObjectMaterial = new CANNON.Material();
 
         this.addNode(...gltfScene.findNodesByName("Light"))
@@ -36,7 +37,7 @@ export class LabyrinthScene extends GameScene {
         this.world.addContactMaterial(new CANNON.ContactMaterial(
             wallMaterial,
             movableObjectMaterial,
-            {friction: 0.0, restitution: 0.5}
+            {friction: 1, restitution: 0}
         ));
 
         await super.start();
