@@ -66,7 +66,7 @@ class App extends WebGlApplication {
   }
 
   private rotateTargetObject() {
-    const matchingObjects = this.scene.findNodesByName(this.rotatingObjectConfig.name);
+    const matchingObjects = this.scene.findNodesByNamePattern(this.rotatingObjectConfig.name);
 
     for (const object of matchingObjects) {
       quat.fromEuler(

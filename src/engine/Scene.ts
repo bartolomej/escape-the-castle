@@ -32,7 +32,19 @@ export class Scene {
         options?.onLeave?.(object)
     }
 
-    findNodesByName(regex: string) {
+    findNodesByName(name: string) {
+        const nodes: Object3D[] = [];
+        this.traverse({
+            onEnter: (object) => {
+                if (object.name === name) {
+                    nodes.push(object);
+                }
+            }
+        });
+        return nodes;
+    }
+
+    findNodesByNamePattern(regex: string) {
         const nodes: Object3D[] = [];
         this.traverse({
             onEnter: (object) => {

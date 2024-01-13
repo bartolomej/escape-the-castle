@@ -17,13 +17,13 @@ export class TestScene extends GameScene {
 
         const floorMaterial = new CANNON.Material();
 
-        const gltfWalls = gltfScene.findNodesByName("Wall.*");
+        const gltfWalls = gltfScene.findNodesByNamePattern("Wall.*");
 
         for (const wall of gltfWalls) {
             this.addNode(new Wall(wall, {physicsMaterial: floorMaterial}))
         }
 
-        const gltfFloor = gltfScene.findNodesByName("Floor")[0];
+        const gltfFloor = gltfScene.findNodesByNamePattern("Floor")[0];
 
         this.addNode(new Floor(gltfFloor, {physicsMaterial: floorMaterial}))
 

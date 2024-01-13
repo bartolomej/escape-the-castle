@@ -21,7 +21,9 @@ export class LabyrinthScene extends GameScene {
         await keyMeshLoader.load("./models/key.gltf");
         const keyMeshScene = await keyMeshLoader.loadScene(keyMeshLoader.defaultScene);
 
-        const keyMesh = keyMeshScene.findNodesByName("Key")[0];
+        this.addNode(...labyrinthMeshScene.findNodesByName("Door"))
+
+        const keyMesh = keyMeshScene.findNodesByNamePattern("Key")[0];
 
         if (!keyMesh) {
             throw new Error("Key not found in the loaded scene")
@@ -40,9 +42,10 @@ export class LabyrinthScene extends GameScene {
         })
         this.addNode(key);
 
-        this.addNode(...labyrinthMeshScene.findNodesByName("Light"));
+        this.addNode(...labyrinthMeshScene.findNodesByNamePattern("Light"));
 
         const sky = new Object3D({
+            name: "Sky sphere",
             // Invert one of the axis, so that the vertices face
             // towards the player (will not be culled).
             scale: [1, 1, -1],
@@ -67,7 +70,7 @@ export class LabyrinthScene extends GameScene {
             intensity: 0.3
         }))
 
-        const labyrinthMesh = labyrinthMeshScene.findNodesByName("Wall")[0];
+        const labyrinthMesh = labyrinthMeshScene.findNodesByNamePattern("Wall")[0];
 
         this.addNode(new Wall(labyrinthMesh, {
             physicsMaterial: wallMaterial

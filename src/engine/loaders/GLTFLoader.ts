@@ -238,7 +238,8 @@ export class GLTFLoader {
             };
             for (const name in primitiveSpec.attributes) {
                 if (!isPrimitiveAttributeName(name)) {
-                    throw new Error(`Unsupported primitive attribute: ${name}`)
+                    console.error(`Unsupported primitive attribute: ${name}`);
+                    continue
                 }
                 primitiveOptions.attributes[name] = await this.loadAccessor(primitiveSpec.attributes[name]);
             }
