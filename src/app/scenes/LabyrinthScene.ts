@@ -12,7 +12,17 @@ import {Material} from "../../engine/materials/Material";
 import {AmbientLight} from "../../engine/lights/AmbientLight";
 import {Door} from "../objects/Door";
 
+// https://pmndrs.github.io/cannon-es/docs/classes/Body.html#COLLIDE_EVENT_NAME
+type CollideEventData = {
+    body: CANNON.Body;
+    target: CANNON.Body;
+    contact: CANNON.ContactEquation;
+}
+
 export class LabyrinthScene extends GameScene {
+    private keys: Key[];
+    private player: Player;
+
     async start(): Promise<void> {
         const labyrinthMeshLoader = new GLTFLoader();
         await labyrinthMeshLoader.load('./models/level.gltf');
@@ -42,14 +52,19 @@ export class LabyrinthScene extends GameScene {
             physicsMaterial: wallMaterial
         }));
 
-        // const keyScale = 0.05;
-        // const key = new Key(keyMesh, {
-        //     physicsMaterial: propMaterial,
-        //     translation: [0, 2, 0],
-        //     rotation: [0, 0, 0, 0],
-        //     scale: [keyScale, keyScale, keyScale]
-        // })
-        // this.addNode(key);
+        const keyScale = 0.05;
+        // The logic shouldn't assume how many keys there are in total.
+        // Add more keys if needed.
+        this.keys = [
+            // Every time we reuse a mesh instance, we must clone it.
+            new Key(keyMesh.clone(), {
+                physicsMaterial: propMaterial,
+                translation: [1, 3, 0],
+                rotation: [0, 0, 0, 0],
+                scale: [keyScale, keyScale, keyScale]
+            })
+        ];
+        this.addNode(...this.keys);
 
         this.addNode(...labyrinthMeshScene.findNodesByNamePattern("Light"));
 
@@ -81,47 +96,11 @@ export class LabyrinthScene extends GameScene {
 
         const labyrinthMesh = labyrinthMeshScene.findNodesByNamePattern("Wall")[0];
 
-        // this.addNode(new Wall(labyrinthMesh, {
-        //     physicsMaterial: wallMaterial
-        // }));
-
-        const wall = (new Wall(labyrinthMesh, {
+        const wall = new Wall(labyrinthMesh, {
             physicsMaterial: wallMaterial
-        }));
+        });
 
         this.addNode(wall);
-
-        const upperBound = { x: 7.042649269104004, y: 0.7042649374047656, z: 7.042649269104004 }
-        const lowerBound = { x: -7.042649269104004, y: 0, z: -7.042649269104004 };
-
-        const keyScale = 0.05;
-        const key = new Key(keyMesh, {
-            physicsMaterial: propMaterial,
-            translation: [1, 3, 0],
-            //translation: this.getRandomPosition(wall.body.aabb.upperBound, wall.body.aabb.lowerBound),
-            //translation: [this.getRandomCoordinate(upperBound.x, lowerBound.x), 2, this.getRandomCoordinate(upperBound.z, lowerBound.z)],
-            rotation: [0, 0, 0, 0],
-            scale: [keyScale, keyScale, keyScale]
-        })
-        const key2 = new Key(keyMesh, {
-            physicsMaterial: propMaterial,
-            translation: [1, 2.5, 0],
-            //translation: this.getRandomPosition(wall.body.aabb.upperBound, wall.body.aabb.lowerBound),
-            //translation: [this.getRandomCoordinate(upperBound.x, lowerBound.x), 2, this.getRandomCoordinate(upperBound.z, lowerBound.z)],
-            rotation: [0, 0, 0, 0],
-            scale: [keyScale, keyScale, keyScale]
-        })
-        const key3 = new Key(keyMesh, {
-            physicsMaterial: propMaterial,
-            translation: [1, 3.5, 0],
-            //translation: this.getRandomPosition(wall.body.aabb.upperBound, wall.body.aabb.lowerBound),
-            //translation: [this.getRandomCoordinate(upperBound.x, lowerBound.x), 2, this.getRandomCoordinate(upperBound.z, lowerBound.z)],
-            rotation: [0, 0, 0, 0],
-            scale: [keyScale, keyScale, keyScale]
-        })
-        this.addNode(key);
-        this.addNode(key2);
-        this.addNode(key3);
 
         this.addNode(new Sphere({
             radius: 0.1,
@@ -129,51 +108,28 @@ export class LabyrinthScene extends GameScene {
             translation: [2.3, 2, 2],
         }));
 
-        const player = new Player({
+        this.player = new Player({
             physicsMaterial: playerMaterial,
             translation: [0, 2, 0],
         })
-        this.addNode(player);
+        this.addNode(this.player);
 
         await super.start();
 
-        // key.body.addEventListener("collide", (event: any) => {
-        //     if (event.body === player.body) {
-        //         // TODO: handle collision
-        //         player.keysFound++;
-        //         console.log("collided with player", event, player.keysFound)
-        //         key.despawn();
-        //     }
-        // });
-
-        const handleCollision = (key: Key) => {
-            return (event: any) => {
-                if (event.body === player.body) {
-                    // TODO: handle collision
-                    player.keysFound++;
-                    console.log("collided with player", event, player.keysFound);
-                    key.despawn();
-                    console.log(wall.body.aabb);
-                }
-            };
-        };
-
-        key.body.addEventListener("collide", handleCollision(key));
-        key2.body.addEventListener("collide", handleCollision(key2));
-        key3.body.addEventListener("collide", handleCollision(key3));
+        this.player.body.addEventListener(
+            CANNON.Body.COLLIDE_EVENT_NAME,
+            this.handlePlayerCollision.bind(this)
+        );
     }
 
-    getRandomPosition(lowerBound: { x: number, y: number, z: number }, upperBound: { x: number, y: number, z: number }) {
-        const randomX = Math.random() * (upperBound.x - lowerBound.x) + lowerBound.x;
-        const randomY = 0;//Math.random() * (upperBound.y - lowerBound.y) + lowerBound.y;
-        const randomZ = Math.random() * (upperBound.z - lowerBound.z) + lowerBound.z;
 
-        return { x: randomX, y: randomY, z: randomZ };
-    }
+    private handlePlayerCollision(event: CollideEventData) {
+        const keyTarget = this.keys.find(key => key.body === event.body);
+        const isCollisionWithKey = keyTarget !== undefined;
 
-    getRandomCoordinate(upperSt: number, lowerSt: number) {
-        const randomSt = Math.random() * (upperSt - lowerSt) + lowerSt;
-
-        return randomSt;
+        if (isCollisionWithKey) {
+            console.log("Player collided with key: ", keyTarget)
+            keyTarget.despawn();
+        }
     }
 }

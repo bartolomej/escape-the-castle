@@ -10,7 +10,6 @@ type KeyOptions = GameObjectOptions & {
 export class Key extends GameObject {
     public body: CANNON.Body;
     private readonly physicsMaterial: CANNON.Material;
-    private readonly shape: CANNON.Shape;
 
     constructor(object: Object3D, options: KeyOptions) {
         super();
@@ -28,7 +27,6 @@ export class Key extends GameObject {
             // TODO: Collision with walls (labyrinth) don't work properly (but they do with the player object)
             mass: 0.01,
             material: this.physicsMaterial,
-            //position: new CANNON.Vec3(...this.generateCoordinates().toArray()/*...this.translation*/),
             position: new CANNON.Vec3(...this.translation),
             quaternion: new CANNON.Quaternion(...this.rotation),
             shape
