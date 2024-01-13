@@ -4,10 +4,12 @@
 		"version":"2.0"
 	},
 	"extensionsUsed":[
-		"KHR_lights_punctual"
+		"KHR_lights_punctual",
+		"KHR_texture_transform"
 	],
 	"extensionsRequired":[
-		"KHR_lights_punctual"
+		"KHR_lights_punctual",
+		"KHR_texture_transform"
 	],
 	"extensions":{
 		"KHR_lights_punctual":{
@@ -28,7 +30,7 @@
 						1,
 						1
 					],
-					"intensity":159.15494309189535,
+					"intensity":238.73241463784302,
 					"type":"point",
 					"name":"Light.001"
 				}
@@ -101,6 +103,18 @@
 			"name":"Material.001",
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
+					"extensions":{
+						"KHR_texture_transform":{
+							"offset":[
+								0,
+								-29
+							],
+							"scale":[
+								30,
+								30
+							]
+						}
+					},
 					"index":0
 				},
 				"metallicFactor":0,
