@@ -42,14 +42,14 @@ export class LabyrinthScene extends GameScene {
             physicsMaterial: wallMaterial
         }));
 
-        const keyScale = 0.05;
-        const key = new Key(keyMesh, {
-            physicsMaterial: propMaterial,
-            translation: [0, 2, 0],
-            rotation: [0, 0, 0, 0],
-            scale: [keyScale, keyScale, keyScale]
-        })
-        this.addNode(key);
+        // const keyScale = 0.05;
+        // const key = new Key(keyMesh, {
+        //     physicsMaterial: propMaterial,
+        //     translation: [0, 2, 0],
+        //     rotation: [0, 0, 0, 0],
+        //     scale: [keyScale, keyScale, keyScale]
+        // })
+        // this.addNode(key);
 
         this.addNode(...labyrinthMeshScene.findNodesByNamePattern("Light"));
 
@@ -81,9 +81,47 @@ export class LabyrinthScene extends GameScene {
 
         const labyrinthMesh = labyrinthMeshScene.findNodesByNamePattern("Wall")[0];
 
-        this.addNode(new Wall(labyrinthMesh, {
+        // this.addNode(new Wall(labyrinthMesh, {
+        //     physicsMaterial: wallMaterial
+        // }));
+
+        const wall = (new Wall(labyrinthMesh, {
             physicsMaterial: wallMaterial
         }));
+
+        this.addNode(wall);
+
+        const upperBound = { x: 7.042649269104004, y: 0.7042649374047656, z: 7.042649269104004 }
+        const lowerBound = { x: -7.042649269104004, y: 0, z: -7.042649269104004 };
+
+        const keyScale = 0.05;
+        const key = new Key(keyMesh, {
+            physicsMaterial: propMaterial,
+            translation: [1, 3, 0],
+            //translation: this.getRandomPosition(wall.body.aabb.upperBound, wall.body.aabb.lowerBound),
+            //translation: [this.getRandomCoordinate(upperBound.x, lowerBound.x), 2, this.getRandomCoordinate(upperBound.z, lowerBound.z)],
+            rotation: [0, 0, 0, 0],
+            scale: [keyScale, keyScale, keyScale]
+        })
+        const key2 = new Key(keyMesh, {
+            physicsMaterial: propMaterial,
+            translation: [1, 2.5, 0],
+            //translation: this.getRandomPosition(wall.body.aabb.upperBound, wall.body.aabb.lowerBound),
+            //translation: [this.getRandomCoordinate(upperBound.x, lowerBound.x), 2, this.getRandomCoordinate(upperBound.z, lowerBound.z)],
+            rotation: [0, 0, 0, 0],
+            scale: [keyScale, keyScale, keyScale]
+        })
+        const key3 = new Key(keyMesh, {
+            physicsMaterial: propMaterial,
+            translation: [1, 3.5, 0],
+            //translation: this.getRandomPosition(wall.body.aabb.upperBound, wall.body.aabb.lowerBound),
+            //translation: [this.getRandomCoordinate(upperBound.x, lowerBound.x), 2, this.getRandomCoordinate(upperBound.z, lowerBound.z)],
+            rotation: [0, 0, 0, 0],
+            scale: [keyScale, keyScale, keyScale]
+        })
+        this.addNode(key);
+        this.addNode(key2);
+        this.addNode(key3);
 
         this.addNode(new Sphere({
             radius: 0.1,
@@ -99,11 +137,43 @@ export class LabyrinthScene extends GameScene {
 
         await super.start();
 
-        key.body.addEventListener("collide", (event: any) => {
-            if (event.body === player.body) {
-                // TODO: handle collision
-                console.log("collided with player", event)
-            }
-        });
+        // key.body.addEventListener("collide", (event: any) => {
+        //     if (event.body === player.body) {
+        //         // TODO: handle collision
+        //         player.keysFound++;
+        //         console.log("collided with player", event, player.keysFound)
+        //         key.despawn();
+        //     }
+        // });
+
+        const handleCollision = (key: Key) => {
+            return (event: any) => {
+                if (event.body === player.body) {
+                    // TODO: handle collision
+                    player.keysFound++;
+                    console.log("collided with player", event, player.keysFound);
+                    key.despawn();
+                    console.log(wall.body.aabb);
+                }
+            };
+        };
+
+        key.body.addEventListener("collide", handleCollision(key));
+        key2.body.addEventListener("collide", handleCollision(key2));
+        key3.body.addEventListener("collide", handleCollision(key3));
+    }
+
+    getRandomPosition(lowerBound: { x: number, y: number, z: number }, upperBound: { x: number, y: number, z: number }) {
+        const randomX = Math.random() * (upperBound.x - lowerBound.x) + lowerBound.x;
+        const randomY = 0;//Math.random() * (upperBound.y - lowerBound.y) + lowerBound.y;
+        const randomZ = Math.random() * (upperBound.z - lowerBound.z) + lowerBound.z;
+
+        return { x: randomX, y: randomY, z: randomZ };
+    }
+
+    getRandomCoordinate(upperSt: number, lowerSt: number) {
+        const randomSt = Math.random() * (upperSt - lowerSt) + lowerSt;
+
+        return randomSt;
     }
 }

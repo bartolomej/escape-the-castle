@@ -40,4 +40,9 @@ export class Key extends GameObject {
         this.rotation = this.body.quaternion.toArray();
         this.updateMatrix();
     }
+
+    despawn(): void {
+        this.body.position = new CANNON.Vec3(0, -10, 0);
+        this.body.mass = 0;
+    }
 }

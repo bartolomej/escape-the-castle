@@ -13,6 +13,8 @@ export class Player extends Sphere {
     public controls: PlayerControls;
     public camera: PerspectiveCamera;
 
+    keysFound: number;
+
     constructor(options: PlayerOptions) {
         super({
             ...options,
@@ -27,6 +29,8 @@ export class Player extends Sphere {
         });
 
         this.addChild(this.camera);
+
+        this.keysFound = 0;
     }
 
 
@@ -34,6 +38,12 @@ export class Player extends Sphere {
         await super.start();
 
         this.controls = new PlayerControls(this.body);
+
+        
+        if (this.keysFound === 3) {
+            console.log("You won!");
+            this.keysFound = 0;
+        }
     }
 
     update(dt: number, time: number): void {
