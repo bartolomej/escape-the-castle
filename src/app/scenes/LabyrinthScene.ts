@@ -5,6 +5,7 @@ import * as CANNON from "cannon-es";
 import {Sphere} from "../objects/Sphere";
 import {Player} from "../objects/Player";
 import {Key} from "../objects/Key";
+import {PointLight} from "../../engine/lights/PointLight";
 
 export class LabyrinthScene extends GameScene {
     async start(): Promise<void> {

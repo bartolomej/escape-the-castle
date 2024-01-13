@@ -96,7 +96,7 @@ void main() {
             light += uLightColor[i] * directionalIntensity * attenuation;
         }
         
-        oColor += texture(uTexture, vTexCoord);
+        oColor += texture(uTexture, vTexCoord) * vec4(light, 1);
      }
 }`.trim()
 }
