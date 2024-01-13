@@ -45,7 +45,7 @@ export class LabyrinthScene extends GameScene {
         this.addNode(new Sphere({
             radius: 0.1,
             physicsMaterial: propMaterial,
-            translation: [2, 2, 2],
+            translation: [2.3, 2, 2],
         }));
 
         this.addNode(new Player({
