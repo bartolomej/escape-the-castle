@@ -22,6 +22,8 @@ export class Player extends Sphere {
         });
         this.camera = new PerspectiveCamera({
             fov: 1.8,
+            // Must be small enough so that player can't see through walls when it touches them.
+            near: 0.05
         });
 
         this.addChild(this.camera);
