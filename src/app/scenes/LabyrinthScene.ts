@@ -36,7 +36,7 @@ export class LabyrinthScene extends GameScene {
 
         this.addNode(...labyrinthMeshScene.findNodesByName("Light"))
 
-        const labyrinthMesh = labyrinthMeshScene.findNodesByName("Plane")[0];
+        const labyrinthMesh = labyrinthMeshScene.findNodesByName("Wall")[0];
 
         this.addNode(new Wall(labyrinthMesh, {
             physicsMaterial: wallMaterial

@@ -18,7 +18,7 @@
 						1,
 						1
 					],
-					"intensity":79.57747154594767,
+					"intensity":54351.41306588226,
 					"type":"point",
 					"name":"Light"
 				}
@@ -31,8 +31,7 @@
 			"name":"Scene",
 			"nodes":[
 				0,
-				1,
-				2
+				1
 			]
 		}
 	],
@@ -57,23 +56,8 @@
 			]
 		},
 		{
-			"camera":0,
-			"name":"Camera",
-			"rotation":[
-				-0.20997299253940582,
-				0.3857799470424652,
-				0.09062844514846802,
-				0.8937962055206299
-			],
-			"translation":[
-				7.358891487121582,
-				4.958309173583984,
-				6.925790786743164
-			]
-		},
-		{
 			"mesh":0,
-			"name":"Plane",
+			"name":"Wall",
 			"scale":[
 				7.042649269104004,
 				7.042649269104004,
@@ -81,16 +65,17 @@
 			]
 		}
 	],
-	"cameras":[
+	"materials":[
 		{
-			"name":"Camera",
-			"perspective":{
-				"aspectRatio":1.7777777777777777,
-				"yfov":0.39959648408210363,
-				"zfar":100,
-				"znear":0.10000000149011612
-			},
-			"type":"perspective"
+			"doubleSided":true,
+			"name":"Material.001",
+			"pbrMetallicRoughness":{
+				"baseColorTexture":{
+					"index":0
+				},
+				"metallicFactor":0,
+				"roughnessFactor":0.5
+			}
 		}
 	],
 	"meshes":[
@@ -103,9 +88,23 @@
 						"NORMAL":1,
 						"TEXCOORD_0":2
 					},
-					"indices":3
+					"indices":3,
+					"material":0
 				}
 			]
+		}
+	],
+	"textures":[
+		{
+			"sampler":0,
+			"source":0
+		}
+	],
+	"images":[
+		{
+			"mimeType":"image/png",
+			"name":"TCom_Brick_CinderblocksPainted2_4K_roughness",
+			"uri":"TCom_Brick_CinderblocksPainted2_4K_roughness.png"
 		}
 	],
 	"accessors":[
@@ -168,6 +167,12 @@
 			"byteLength":23820,
 			"byteOffset":147968,
 			"target":34963
+		}
+	],
+	"samplers":[
+		{
+			"magFilter":9729,
+			"minFilter":9987
 		}
 	],
 	"buffers":[
