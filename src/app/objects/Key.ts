@@ -18,13 +18,19 @@ export class Key extends GameObject {
     }
 
     async start(): Promise<void> {
-        //const shape = meshToCannonShape(this.mesh);
-        //const shape = new CANNON.Box(new CANNON.Vec3(...this.scale));
-        const shape = new CANNON.Sphere(0.2);
-        //shape.setScale(new CANNON.Vec3(...this.scale));
+        // This is the smallest sphere size that doesn't fall
+        // thought the floor trimesh when being dropped from the sky.
+        // Lowering this will make it too small for the current simulation precision.
+        const smallestSizeWithRealTimeSimulation = 0.06;
+
+        // Ideally this key would be modeled as a trimesh or box shape,
+        // but collisions between trimesh <-> trimesh and trimesh <-> box aren't supported yet.
+        // See:
+        // - https://github.com/pmndrs/cannon-es/issues/21
+        // - https://pmndrs.github.io/cannon-es/docs/#supported-shape-collision-pairs
+        const shape = new CANNON.Sphere(smallestSizeWithRealTimeSimulation);
 
         this.body = new CANNON.Body({
-            // TODO: Collision with walls (labyrinth) don't work properly (but they do with the player object)
             mass: 0.01,
             material: this.physicsMaterial,
             position: new CANNON.Vec3(...this.translation),
