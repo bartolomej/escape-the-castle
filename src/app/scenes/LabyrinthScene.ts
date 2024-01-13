@@ -28,12 +28,13 @@ export class LabyrinthScene extends GameScene {
         const playerMaterial = new CANNON.Material();
 
         const keyScale = 0.05;
-        this.addNode(new Key(keyMesh, {
+        const key = new Key(keyMesh, {
             physicsMaterial: propMaterial,
             translation: [0, 2, 0],
             rotation: [0, 0, 0, 0],
             scale: [keyScale, keyScale, keyScale]
-        }));
+        })
+        this.addNode(key);
 
         this.addNode(...labyrinthMeshScene.findNodesByName("Light"))
 
@@ -49,11 +50,19 @@ export class LabyrinthScene extends GameScene {
             translation: [2.3, 2, 2],
         }));
 
-        this.addNode(new Player({
+        const player = new Player({
             physicsMaterial: playerMaterial,
             translation: [0, 2, 0],
-        }));
+        })
+        this.addNode(player);
 
         await super.start();
+
+        key.body.addEventListener("collide", (event: any) => {
+            if (event.body === player.body) {
+                // TODO: handle collision
+                console.log("collided with player", event)
+            }
+        });
     }
 }
