@@ -1,15 +1,20 @@
 import { Accessor } from "../core/Accessor";
 import { BufferView } from "../core/BufferView";
-import {Primitive, PrimitiveAttributeName} from "../core/Primitive";
+import {Primitive, PrimitiveAttributeName, PrimitiveOptions} from "../core/Primitive";
 
 type TypedArray = Int8Array | Uint8Array | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array;
 type TwglVertices = Record<string, TypedArray>;
+
+export type TwglPrimitiveOptions = PrimitiveOptions & {
+    vertices: TwglVertices;
+}
 
 /**
  * Internal primitive helper.
  */
 export class TwglPrimitive extends Primitive {
-    constructor(vertices: TwglVertices) {
+    constructor(options: TwglPrimitiveOptions) {
+        const {vertices, ...primitiveOptions} = options;
         // See: https://github.com/greggman/twgl.js/blob/956fafcb74dcfbd6e667b4aa23cee09b8cfaa690/src/primitives.js#L567-L640
         const attributes: Record<PrimitiveAttributeName, Accessor> = {
             POSITION: new Accessor({
@@ -47,7 +52,8 @@ export class TwglPrimitive extends Primitive {
                 count: vertices.indices.length,
                 bufferView: bufferViewFromTypedArray(vertices.indices as never)
             }),
-            attributes
+            attributes,
+            ...primitiveOptions
         })
     }
 }

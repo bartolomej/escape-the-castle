@@ -1,7 +1,8 @@
 import {primitives} from "twgl.js";
 import {TwglPrimitive} from "./TwglPrimitive";
+import {PrimitiveOptions} from "../core/Primitive";
 
-type SphereGeometryOptions = {
+type SphereGeometryOptions = PrimitiveOptions & {
     radius: number;
     // Number of steps around the sphere
     subdivisionsAxis: number;
@@ -12,10 +13,13 @@ type SphereGeometryOptions = {
 
 export class SpherePrimitive extends TwglPrimitive {
     constructor(options: SphereGeometryOptions) {
-        super(primitives.createSphereVertices(
-            options.radius,
-            options.subdivisionsAxis,
-            options.subdivisionsHeight
-        ));
+        super({
+            ...options,
+            vertices: primitives.createSphereVertices(
+                options.radius,
+                options.subdivisionsAxis,
+                options.subdivisionsHeight
+            )
+        });
     }
 }

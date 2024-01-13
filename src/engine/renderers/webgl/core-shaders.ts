@@ -53,6 +53,7 @@ precision mediump float;
 
 uniform mat4 uViewModel;
 uniform mediump sampler2D uTexture;
+uniform vec4 uBaseColorFactor;
 uniform vec3 uLightPosition[${numberOfLights}];
 uniform vec3 uLightDirection[${numberOfLights}];
 uniform vec3 uLightColor[${numberOfLights}];
@@ -92,11 +93,14 @@ void main() {
         if (lightType == LIGHT_TYPE_POINT) {
             float distanceToLight = length(vSurfaceToLight[i]);
             float attenuation = 1.0 / (distanceToLight * distanceToLight);
-            float directionalIntensity = dot(surfaceNormal, vSurfaceToLight[i]) * uLightIntensity[i];
-            light += uLightColor[i] * directionalIntensity * attenuation;
+            float directionalIntensity = dot(surfaceNormal, vSurfaceToLight[i]);
+            // Ignore negative factors, otherwise this step could take away light from other sources.
+            light += uLightColor[i] * max(directionalIntensity, 0.0) * attenuation;
         }
         
-        oColor += texture(uTexture, vTexCoord) * vec4(light, 1);
+        light *= uLightIntensity[i];
+        
+        oColor += texture(uTexture, vTexCoord) * uBaseColorFactor * vec4(light, 1);
      }
 }`.trim()
 }

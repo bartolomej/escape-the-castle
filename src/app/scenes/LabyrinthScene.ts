@@ -5,7 +5,11 @@ import * as CANNON from "cannon-es";
 import {Sphere} from "../objects/Sphere";
 import {Player} from "../objects/Player";
 import {Key} from "../objects/Key";
-import {PointLight} from "../../engine/lights/PointLight";
+import {Object3D} from "../../engine/core/Object3D";
+import {Mesh} from "../../engine/core/Mesh";
+import {SpherePrimitive} from "../../engine/geometries/SpherePrimitive";
+import {Material} from "../../engine/materials/Material";
+import {AmbientLight} from "../../engine/lights/AmbientLight";
 
 export class LabyrinthScene extends GameScene {
     async start(): Promise<void> {
@@ -36,7 +40,32 @@ export class LabyrinthScene extends GameScene {
         })
         this.addNode(key);
 
-        this.addNode(...labyrinthMeshScene.findNodesByName("Light"))
+        this.addNode(...labyrinthMeshScene.findNodesByName("Light"));
+
+        const sky = new Object3D({
+            // Invert one of the axis, so that the vertices face
+            // towards the player (will not be culled).
+            scale: [1, 1, -1],
+            mesh: new Mesh({
+                primitives: [
+                    new SpherePrimitive({
+                        material: new Material({
+                            baseColorFactor: [0.2, 0.5, 0.6, 0.2],
+                        }),
+                        radius: 20,
+                        subdivisionsAxis: 10,
+                        subdivisionsHeight: 10
+                    })
+                ]
+            })
+        });
+
+        this.addNode(sky)
+
+        this.addNode(new AmbientLight({
+            color: [255, 255, 255],
+            intensity: 0.3
+        }))
 
         const labyrinthMesh = labyrinthMeshScene.findNodesByName("Wall")[0];
 

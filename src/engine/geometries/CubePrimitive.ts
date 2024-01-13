@@ -1,12 +1,16 @@
 import {primitives} from "twgl.js";
 import {TwglPrimitive} from "./TwglPrimitive";
+import {PrimitiveOptions} from "../core/Primitive";
 
-type CubePrimitiveOptions ={
+type CubePrimitiveOptions = PrimitiveOptions & {
     size: number;
 }
 
 export class CubePrimitive extends TwglPrimitive {
     constructor(options: CubePrimitiveOptions) {
-        super(primitives.createCubeVertices(options.size));
+        super({
+            ...options,
+            vertices: primitives.createCubeVertices(options.size),
+        });
     }
 }

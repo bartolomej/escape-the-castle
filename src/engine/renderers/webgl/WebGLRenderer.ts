@@ -354,10 +354,13 @@ export class WebGLRenderer {
 
     gl.useProgram(program.program);
 
-    // set standard uniform values
+    // set standard geometry uniforms
     gl.uniformMatrix4fv(program.uniforms.uProjection, false, matrices.projection);
     gl.uniformMatrix4fv(program.uniforms.uViewModel, false, matrices.viewModel);
     gl.uniform1i(program.uniforms.uTexture, 0);
+
+    // set standard material uniforms
+    gl.uniform4fv(program.uniforms.uBaseColorFactor, material.baseColorFactor);
 
     if (material instanceof ShaderMaterial) {
       this.setShaderUniformValues(program, material)
