@@ -10,6 +10,7 @@ import {Mesh} from "../../engine/core/Mesh";
 import {SpherePrimitive} from "../../engine/geometries/SpherePrimitive";
 import {Material} from "../../engine/materials/Material";
 import {AmbientLight} from "../../engine/lights/AmbientLight";
+import {Door} from "../objects/Door";
 
 export class LabyrinthScene extends GameScene {
     async start(): Promise<void> {
@@ -21,7 +22,11 @@ export class LabyrinthScene extends GameScene {
         await keyMeshLoader.load("./models/key.gltf");
         const keyMeshScene = await keyMeshLoader.loadScene(keyMeshLoader.defaultScene);
 
-        this.addNode(...labyrinthMeshScene.findNodesByName("Door"))
+        const door = labyrinthMeshScene.findNodesByName("Door")[0];
+
+        if (!door) {
+            throw new Error("Door not found in the loaded scene")
+        }
 
         const keyMesh = keyMeshScene.findNodesByNamePattern("Key")[0];
 
@@ -32,6 +37,10 @@ export class LabyrinthScene extends GameScene {
         const propMaterial = new CANNON.Material();
         const wallMaterial = new CANNON.Material();
         const playerMaterial = new CANNON.Material();
+
+        this.addNode(new Door(door, {
+            physicsMaterial: wallMaterial
+        }));
 
         const keyScale = 0.05;
         const key = new Key(keyMesh, {
