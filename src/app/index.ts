@@ -10,6 +10,7 @@ import {GameScene} from "./core/GameScene";
 import {LabyrinthScene} from "./scenes/LabyrinthScene";
 import {Player} from "./objects/Player";
 import {UiController} from "./UiController";
+import { Howl } from "howler";
 
 const useTestScene = false;
 const showDebugControls = false;
@@ -19,6 +20,13 @@ class App extends WebGlApplication {
   private renderer: WebGLRenderer;
   public scene: GameScene;
   public player: Player;
+
+  private sound = new Howl({
+    src: ['./sounds/background2.mp3'],
+    html5: true,
+    volume: 0.15,
+    loop: true,
+  });
 
   cameraConfig = {
     fov: 1.8,
@@ -42,6 +50,8 @@ class App extends WebGlApplication {
 
     // Log scene in console for easier debugging.
     console.log(this.scene);
+
+    this.sound.play();
 
     const player = this.scene.findNodes(node => node instanceof Player)[0];
     if (player) {
