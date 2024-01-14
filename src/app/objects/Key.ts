@@ -1,7 +1,7 @@
 import {GameObject, GameObjectOptions} from "../core/GameObject";
 import {Object3D} from "../../engine/core/Object3D";
 import * as CANNON from "cannon-es";
-import {meshToCannonShape} from "../utils";
+import {quat} from "gl-matrix";
 import { Howl } from "howler";
 
 type KeyOptions = GameObjectOptions & {
@@ -12,10 +12,10 @@ export class Key extends GameObject {
     public body: CANNON.Body;
     private readonly physicsMaterial: CANNON.Material;
 
-    private sound = new Howl({ 
+    private sound = new Howl({
         src: ['./sounds/kill_sound.mp3'],
         html5: true,
-        volume: 1, 
+        volume: 1,
     });
 
     constructor(object: Object3D, options: KeyOptions) {
@@ -28,7 +28,7 @@ export class Key extends GameObject {
         // This is the smallest sphere size that doesn't fall
         // thought the floor trimesh when being dropped from the sky.
         // Lowering this will make it too small for the current simulation precision.
-        const smallestSizeWithRealTimeSimulation = 0.1;
+        const smallestSizeWithRealTimeSimulation = 0.15;
 
         // Ideally this key would be modeled as a trimesh or box shape,
         // but collisions between trimesh <-> trimesh and trimesh <-> box aren't supported yet.
@@ -46,9 +46,15 @@ export class Key extends GameObject {
         });
     }
 
-    update(): void {
+    update(dt: number, time: number): void {
+        // Don't use the rotation from physical body,
+        // as we want the rendered key to be static.
         this.translation = this.body.position.toArray();
-        this.rotation = this.body.quaternion.toArray();
+
+        // Animate horizontal key rotation.
+        const rotationX = (time * 100) % 360;
+        quat.fromEuler(this.rotation, rotationX, 0, -90);
+
         this.updateMatrix();
     }
 
