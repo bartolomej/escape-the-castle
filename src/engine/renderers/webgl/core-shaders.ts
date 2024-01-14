@@ -73,21 +73,20 @@ int LIGHT_TYPE_DIRECTIONAL = 1;
 int LIGHT_TYPE_POINT = 2;
 
 void main() {
-    oColor = vec4(0.0);
+    vec3 summedLight = vec3(0, 0, 0);
     
     for (int i = 0; i < ${numberOfLights}; i++) {
         vec3 surfaceNormal = normalize(vNormal);
         int lightType = uLightType[i];
-        
         vec3 light = vec3(0, 0, 0);
         
         if (lightType == LIGHT_TYPE_AMBIENT) {
-            light += uLightColor[i]; 
+            light = uLightColor[i]; 
         }
         
         if (lightType == LIGHT_TYPE_DIRECTIONAL) {
             float directionalIntensity = dot(surfaceNormal, uLightDirection[i]);
-            light += uLightColor[i] * directionalIntensity;
+            light = uLightColor[i] * directionalIntensity;
         }
         
         // TODO: Point light doesn't work as expected
@@ -96,14 +95,15 @@ void main() {
             float attenuation = 1.0 / (distanceToLight * distanceToLight);
             float directionalIntensity = dot(surfaceNormal, vSurfaceToLight[i]);
             // Ignore negative factors, otherwise this step could take away light from other sources.
-            light += uLightColor[i] * max(directionalIntensity, 0.0) * attenuation;
+            light = uLightColor[i] * max(directionalIntensity, 0.0) * attenuation;
         }
         
-        light *= uLightIntensity[i];
-        
-        vec2 uvTransformed = (vec3(vTexCoord, 1.0) * uBaseColorTransform).xy;
-        
-        oColor += texture(uTexture, uvTransformed) * uBaseColorFactor * vec4(light, 1);
+        // Temp solution: cap intensity to avoid very bright spots on models.
+        summedLight += min(light * uLightIntensity[i], 1.0);
      }
+     
+    vec2 uvTransformed = (vec3(vTexCoord, 1.0) * uBaseColorTransform).xy;
+        
+    oColor += texture(uTexture, uvTransformed) * uBaseColorFactor * vec4(summedLight, 1);
 }`.trim()
 }

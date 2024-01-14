@@ -91,7 +91,7 @@ export class LabyrinthScene extends GameScene {
 
         this.addNode(new AmbientLight({
             color: [45, 80, 160],
-            intensity: 0.2
+            intensity: 0.5
         }))
 
         const labyrinthMesh = labyrinthMeshScene.findNodesByNamePattern("Wall")[0];
