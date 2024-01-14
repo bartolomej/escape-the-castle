@@ -357,6 +357,7 @@ export class WebGLRenderer {
 
     // set standard material uniforms
     gl.uniform4fv(program.uniforms.uBaseColorFactor, material.baseColorFactor);
+    gl.uniformMatrix3fv(program.uniforms.uBaseColorTransform, false, material.baseColorTransform);
 
     if (material instanceof ShaderMaterial) {
       this.setShaderUniformValues(program, material)

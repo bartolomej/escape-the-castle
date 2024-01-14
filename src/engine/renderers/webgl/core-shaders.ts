@@ -54,6 +54,7 @@ precision mediump float;
 uniform mat4 uViewModel;
 uniform mediump sampler2D uTexture;
 uniform vec4 uBaseColorFactor;
+uniform mat3 uBaseColorTransform;
 uniform vec3 uLightPosition[${numberOfLights}];
 uniform vec3 uLightDirection[${numberOfLights}];
 uniform vec3 uLightColor[${numberOfLights}];
@@ -100,7 +101,9 @@ void main() {
         
         light *= uLightIntensity[i];
         
-        oColor += texture(uTexture, vTexCoord) * uBaseColorFactor * vec4(light, 1);
+        vec2 uvTransformed = (vec3(vTexCoord, 1.0) * uBaseColorTransform).xy;
+        
+        oColor += texture(uTexture, uvTransformed) * uBaseColorFactor * vec4(light, 1);
      }
 }`.trim()
 }
