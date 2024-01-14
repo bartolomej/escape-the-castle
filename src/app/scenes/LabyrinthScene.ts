@@ -54,7 +54,7 @@ export class LabyrinthScene extends GameScene {
         }));
 
         this.addNode(this.winDoor);
-    
+
 
         const upperBound = { x: 7.042649269104004, y: 0.7042649374047656, z: 7.042649269104004 }
         const lowerBound = { x: -7.042649269104004, y: 0, z: -7.042649269104004 };
@@ -147,23 +147,18 @@ export class LabyrinthScene extends GameScene {
 
     private handlePlayerCollision(event: CollideEventData) {
         const keyTarget = this.keys.find(key => key.body === event.body);
-        const isCollisionWithKey = keyTarget !== undefined;
-
         const doorTarget = this.winDoor.body === event.body;
 
-        if (isCollisionWithKey) {
+        if (keyTarget) {
             console.log("Player collided with key: ", keyTarget)
-            this.player.keysFound++;
             keyTarget.despawn();
+            this.player.pickupKey(keyTarget);
         }
 
-        if (doorTarget) {
+        const hasWon = this.player.foundKeys.length === this.keys.length;
+        if (doorTarget && hasWon) {
             console.log("Player collided with door: ", doorTarget)
-
-            if (this.player.winCondition === true) {
-                console.log("You win!");
-                alert("You win!");
-            }
+            alert("You win!");
         }
     }
 

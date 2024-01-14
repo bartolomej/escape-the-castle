@@ -3,6 +3,7 @@ import {PerspectiveCamera} from "../../engine/cameras/PerspectiveCamera";
 import {quat, vec3} from "gl-matrix";
 import * as CANNON from "cannon-es"
 import {Sphere} from "./Sphere";
+import { Key } from "./Key";
 
 type PlayerOptions = GameObjectOptions & {
     physicsMaterial: CANNON.Material;
@@ -12,9 +13,7 @@ export class Player extends Sphere {
     public body: CANNON.Body;
     public controls: PlayerControls;
     public camera: PerspectiveCamera;
-
-    keysFound: number;
-    winCondition: boolean;
+    public foundKeys: Key[];
 
     constructor(options: PlayerOptions) {
         super({
@@ -31,9 +30,7 @@ export class Player extends Sphere {
 
         this.addChild(this.camera);
 
-        this.keysFound = 0;
-        this.winCondition = false;
-
+        this.foundKeys = [];
     }
 
 
@@ -49,12 +46,11 @@ export class Player extends Sphere {
         this.camera.rotation = quat.fromEuler(quat.create(), x, y, z);
         this.camera.updateMatrix();
         super.update(dt, time);
+    }
 
-        if (this.keysFound === 3) {
-            console.log("You have the win condition!");
-            this.keysFound = 0;
-            this.winCondition = true;
-        }
+    public pickupKey(key: Key) {
+        this.foundKeys.push(key);
+        // TODO: Maybe animate the key position and add it as a child node of player
     }
 }
 
