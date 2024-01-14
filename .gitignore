@@ -4,3 +4,5 @@ dist
 .idea
 # Local Netlify folder
 .netlify
+# Ignore previous versions of the saved .blend file
+**/*.blend1
