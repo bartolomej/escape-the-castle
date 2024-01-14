@@ -10,7 +10,7 @@ import * as CANNON from "cannon-es";
 import {Player} from "../objects/Player";
 
 export class TestScene extends GameScene {
-    async start(): Promise<void> {
+    async load(): Promise<void> {
         const gltfLoader = new GLTFLoader();
         await gltfLoader.load('./models/test.gltf');
         const gltfScene = await gltfLoader.loadScene(gltfLoader.defaultScene);
@@ -66,7 +66,8 @@ export class TestScene extends GameScene {
             translation: [0,2,0],
         }));
 
-        await super.start();
+        await super.load();
     }
 
+    start() {}
 }

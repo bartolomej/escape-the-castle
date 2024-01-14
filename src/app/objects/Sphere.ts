@@ -23,7 +23,7 @@ export class Sphere extends GameObject {
         this.mass = options.mass ?? 0.1;
     }
 
-    async start(): Promise<void> {
+    async load(): Promise<void> {
 
         this.mesh = new Mesh({
             primitives: [

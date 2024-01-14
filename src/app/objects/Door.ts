@@ -18,7 +18,7 @@ export class Door extends GameObject {
         this.physicsMaterial = options.physicsMaterial;
     }
 
-    async start(): Promise<void> {
+    async load(): Promise<void> {
         // Approximate dimensions obtained by resetting the root node transformations
         // and comparing the true door size against other objects in the scene
         // with known dimensions (e.g. sky sphere).

@@ -16,7 +16,7 @@ export class Floor extends GameObject {
         this.physicsMaterial = options.physicsMaterial;
     }
 
-    async start(): Promise<void> {
+    async load(): Promise<void> {
         this.body = new CANNON.Body({
             type: CANNON.BODY_TYPES.STATIC,
             position: new CANNON.Vec3(...this.translation),

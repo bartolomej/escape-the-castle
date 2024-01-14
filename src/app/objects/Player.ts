@@ -34,8 +34,8 @@ export class Player extends Sphere {
     }
 
 
-    async start(): Promise<void> {
-        await super.start();
+    async load(): Promise<void> {
+        await super.load();
 
         this.controls = new PlayerControls(this.body);
     }

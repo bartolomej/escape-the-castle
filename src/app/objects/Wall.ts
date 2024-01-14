@@ -30,7 +30,7 @@ export class Wall extends GameObject {
         });
     }
 
-    async start(): Promise<void> {}
+    async load(): Promise<void> {}
 
     update(): void {
         this.translation = this.body.position.toArray();

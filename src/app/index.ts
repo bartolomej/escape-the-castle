@@ -29,7 +29,7 @@ class App extends WebGlApplication {
     rotationZ: 0
   }
 
-  async loadScene() {
+  async load() {
     if (useTestScene) {
       this.scene = new TestScene();
     } else {
@@ -37,7 +37,7 @@ class App extends WebGlApplication {
     }
 
     // Loads the scene nodes
-    await this.scene.start();
+    await this.scene.load();
 
     // Log scene in console for easier debugging.
     console.log(this.scene);
@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   startButton.innerText = "Loading...";
   startButton.toggleAttribute("disabled");
-  await app.loadScene();
+  await app.load();
   startButton.innerText = "Start";
   startButton.toggleAttribute("disabled");
 

@@ -3,7 +3,7 @@ import {GameObject} from "./GameObject";
 import * as CANNON from "cannon-es";
 import {Player} from "../objects/Player";
 
-export class GameScene extends Scene {
+export abstract class GameScene extends Scene {
     world: CANNON.World;
 
     constructor() {
@@ -14,18 +14,36 @@ export class GameScene extends Scene {
     }
 
     /**
-     * State initialization.
+     * Asset loading stage.
      */
-    public async start(): Promise<void> {
-        for (const node of this.nodes) {
-            if (node instanceof GameObject) {
-                await node.start();
-                if (node.body) {
+    public async load(): Promise<void> {
+        const loadPromises: Promise<void>[] = [];
+
+        this.traverse({
+            onEnter: node => {
+                if (node instanceof GameObject) {
+                    loadPromises.push(node.load());
+                }
+            }
+        });
+
+        // Finish for all load calls to complete before initializing world.
+        await Promise.all(loadPromises);
+
+        this.traverse({
+            onEnter: node => {
+                if (node instanceof GameObject && node.body) {
+                    // Object mesh and physics body should be initialized by now.
                     this.world.addBody(node.body);
                 }
             }
-        }
+        })
     }
+
+    /**
+     * State initialization just before game loop is started.
+     */
+    public abstract start(): void;
 
     /**
      * Update internal object state before rendering.

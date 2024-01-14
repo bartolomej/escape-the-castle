@@ -11,7 +11,7 @@ export class Cube extends GameObject {
         this.name = options.name ?? "Cube";
     }
 
-    async start(): Promise<void> {
+    async load(): Promise<void> {
         const size = 1;
 
         this.mesh = new Mesh({

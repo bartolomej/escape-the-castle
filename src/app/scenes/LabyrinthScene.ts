@@ -21,7 +21,7 @@ export class LabyrinthScene extends GameScene {
     private winDoor: Door;
     private player: Player;
 
-    async start(): Promise<void> {
+    async load(): Promise<void> {
         const labyrinthMeshLoader = new GLTFLoader();
         await labyrinthMeshLoader.load('./models/level.gltf');
         const labyrinthMeshScene = await labyrinthMeshLoader.loadScene(labyrinthMeshLoader.defaultScene);
@@ -105,14 +105,16 @@ export class LabyrinthScene extends GameScene {
         })
         this.addNode(this.player);
 
-        await super.start();
-
-        this.timer(this.player);
+        await super.load();
 
         this.player.body.addEventListener(
             CANNON.Body.COLLIDE_EVENT_NAME,
             this.handlePlayerCollision.bind(this)
         );
+    }
+
+    start() {
+        this.timer(this.player);
     }
 
     private getRandomKeyWorldPosition(worldAabb: CANNON.AABB): CANNON.Vec3 {

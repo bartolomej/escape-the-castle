@@ -24,7 +24,7 @@ export class Key extends GameObject {
         this.physicsMaterial = options.physicsMaterial;
     }
 
-    async start(): Promise<void> {
+    async load(): Promise<void> {
         // This is the smallest sphere size that doesn't fall
         // thought the floor trimesh when being dropped from the sky.
         // Lowering this will make it too small for the current simulation precision.

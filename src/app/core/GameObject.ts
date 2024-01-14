@@ -15,9 +15,9 @@ export abstract class GameObject extends Object3D {
     public abstract body?: CANNON.Body;
 
     /**
-     * State initialization.
+     * Asset loading and state initialization.
      */
-    public abstract start(): Promise<void>;
+    public abstract load(): Promise<void>;
 
     /**
      * Update code (input, animations, AI ...)
