@@ -150,4 +150,13 @@ async function main () {
   });
 }
 
-document.addEventListener('DOMContentLoaded', main);
+//document.addEventListener('DOMContentLoaded', main);
+
+document.addEventListener('DOMContentLoaded', () => {
+
+  document.getElementById("startGame").addEventListener("click", () => {
+
+    document.getElementById("main-menu").style.display = "none";
+    main();
+  })
+});

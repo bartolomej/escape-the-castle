@@ -107,6 +107,8 @@ export class LabyrinthScene extends GameScene {
 
         await super.start();
 
+        this.timer(this.player);
+
         this.player.body.addEventListener(
             CANNON.Body.COLLIDE_EVENT_NAME,
             this.handlePlayerCollision.bind(this)
@@ -150,6 +152,21 @@ export class LabyrinthScene extends GameScene {
         if (doorTarget && hasWon) {
             console.log("Player collided with door: ", doorTarget)
             alert("You win!");
+            this.player.controls.disable();
         }
+    }
+
+    timer( player: Player){
+        var sec = 30;
+        var timer = setInterval(function(){
+            console.log(sec);
+            sec--;
+            if (sec < 0) {
+                clearInterval(timer);
+                alert("You lose!");
+                player.controls.disable();
+                this.gameEnd = true;
+            }
+        }, 1000);
     }
 }

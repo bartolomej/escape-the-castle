@@ -2,6 +2,7 @@ import {GameObject, GameObjectOptions} from "../core/GameObject";
 import {Object3D} from "../../engine/core/Object3D";
 import * as CANNON from "cannon-es";
 import {meshToCannonShape} from "../utils";
+import { Howl } from "howler";
 
 type KeyOptions = GameObjectOptions & {
     physicsMaterial: CANNON.Material;
@@ -10,6 +11,12 @@ type KeyOptions = GameObjectOptions & {
 export class Key extends GameObject {
     public body: CANNON.Body;
     private readonly physicsMaterial: CANNON.Material;
+
+    private sound = new Howl({ 
+        src: ['./sounds/kill_sound.mp3'],
+        html5: true,
+        volume: 1, 
+    });
 
     constructor(object: Object3D, options: KeyOptions) {
         super();
@@ -48,5 +55,6 @@ export class Key extends GameObject {
     despawn(): void {
         this.body.position = new CANNON.Vec3(0, -10, 0);
         this.body.mass = 0;
+        this.sound.play();
     }
 }
