@@ -21,7 +21,7 @@ export class Key extends GameObject {
         // This is the smallest sphere size that doesn't fall
         // thought the floor trimesh when being dropped from the sky.
         // Lowering this will make it too small for the current simulation precision.
-        const smallestSizeWithRealTimeSimulation = 0.06; //0.08 za random spawn generator
+        const smallestSizeWithRealTimeSimulation = 0.1;
 
         // Ideally this key would be modeled as a trimesh or box shape,
         // but collisions between trimesh <-> trimesh and trimesh <-> box aren't supported yet.

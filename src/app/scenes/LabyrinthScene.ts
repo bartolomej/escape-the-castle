@@ -52,39 +52,6 @@ export class LabyrinthScene extends GameScene {
 
         this.addNode(this.winDoor);
 
-
-        const upperBound = { x: 7.042649269104004, y: 0.7042649374047656, z: 7.042649269104004 }
-        const lowerBound = { x: -7.042649269104004, y: 0, z: -7.042649269104004 };
-
-        const keyScale = 0.05;
-        // The logic shouldn't assume how many keys there are in total.
-        // Add more keys if needed.
-        this.keys = [
-            // Every time we reuse a mesh instance, we must clone it.
-            new Key(keyMesh.clone(), {
-                physicsMaterial: propMaterial,
-                translation: [1,3,1],
-                //translation: [this.getRandomCoordinate(upperBound.x, lowerBound.x), 0.2, this.getRandomCoordinate(upperBound.z, lowerBound.z)],
-                rotation: [0, 0, 0, 0],
-                scale: [keyScale, keyScale, keyScale]
-            }),
-            new Key(keyMesh.clone(), {
-                physicsMaterial: propMaterial,
-                translation: [1,3,1],
-                //translation: [this.getRandomCoordinate(upperBound.x, lowerBound.x), 0.2, this.getRandomCoordinate(upperBound.z, lowerBound.z)],
-                rotation: [0, 0, 0, 0],
-                scale: [keyScale, keyScale, keyScale]
-            }),
-            new Key(keyMesh.clone(), {
-                physicsMaterial: propMaterial,
-                translation: [1,3,1],
-                //translation: [this.getRandomCoordinate(upperBound.x, lowerBound.x), 0.2, this.getRandomCoordinate(upperBound.z, lowerBound.z)],
-                rotation: [0, 0, 0, 0],
-                scale: [keyScale, keyScale, keyScale]
-            })
-        ];
-        this.addNode(...this.keys);
-
         this.addNode(...labyrinthMeshScene.findNodesByNamePattern("Light"));
 
         this.addNode(new Sky())
@@ -99,6 +66,30 @@ export class LabyrinthScene extends GameScene {
         const wall = new Wall(labyrinthMesh, {
             physicsMaterial: wallMaterial
         });
+
+        const generateKey = () => {
+            const keyScale = 0.05;
+            const randomPosition = this.getRandomKeyWorldPosition(wall.body.aabb);
+            // Position it above the wall level,
+            // so that it can't land within the wall.
+            randomPosition.y = 2;
+            // Every time we reuse a mesh instance, we must clone it.
+            return new Key(keyMesh.clone(), {
+                physicsMaterial: propMaterial,
+                translation: [randomPosition.x, randomPosition.y, randomPosition.z],
+                rotation: [0, 0, 0, 0],
+                scale: [keyScale, keyScale, keyScale]
+            })
+        }
+
+        // TODO: Generate variable number of keys if needed
+        this.keys = [
+            generateKey(),
+            generateKey(),
+            generateKey(),
+            generateKey(),
+        ];
+        this.addNode(...this.keys);
 
         this.addNode(wall);
 
@@ -122,6 +113,28 @@ export class LabyrinthScene extends GameScene {
         );
     }
 
+    private getRandomKeyWorldPosition(worldAabb: CANNON.AABB): CANNON.Vec3 {
+        // Downscale the bounds by some factor
+        // so that we are not too close to the edges and fall off the world.
+        const borderScalingFactor = 0.9
+        return this.getRandomVector(
+            worldAabb.lowerBound.scale(borderScalingFactor),
+            worldAabb.upperBound.scale(borderScalingFactor),
+        )
+    }
+
+    private getRandomVector(min: CANNON.Vec3, max: CANNON.Vec3) {
+        return new CANNON.Vec3(
+            this.getRandomScalar(min.x, max.x),
+            this.getRandomScalar(min.y, max.y),
+            this.getRandomScalar(min.z, max.z),
+        )
+    }
+
+    private getRandomScalar(min: number, max: number) {
+        return Math.random() * (max - min) + min;
+    }
+
 
     private handlePlayerCollision(event: CollideEventData) {
         const keyTarget = this.keys.find(key => key.body === event.body);
@@ -138,11 +151,5 @@ export class LabyrinthScene extends GameScene {
             console.log("Player collided with door: ", doorTarget)
             alert("You win!");
         }
-    }
-
-    getRandomCoordinate(upperSt: number, lowerSt: number) {
-        const randomSt = Math.random() * (upperSt - lowerSt) + lowerSt;
-
-        return randomSt;
     }
 }

@@ -16,9 +16,7 @@ export class Wall extends GameObject {
         super();
         Object.assign(this, object);
         this.physicsMaterial = options.physicsMaterial;
-    }
 
-    async start(): Promise<void> {
         const shape = meshToCannonShape(this.mesh);
 
         shape.setScale(new CANNON.Vec3(...this.scale));
@@ -31,6 +29,8 @@ export class Wall extends GameObject {
             shape
         });
     }
+
+    async start(): Promise<void> {}
 
     update(): void {
         this.translation = this.body.position.toArray();
