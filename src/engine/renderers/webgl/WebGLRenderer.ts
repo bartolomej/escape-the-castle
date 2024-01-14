@@ -331,10 +331,6 @@ export class WebGLRenderer {
         this.renderPrimitive(primitive, matrices);
       }
     }
-
-    for (const child of object3d.children) {
-      this.renderObject3D(child, matrices);
-    }
   }
 
   renderPrimitive (primitive: Primitive, matrices: {
