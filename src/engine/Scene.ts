@@ -1,11 +1,6 @@
-import { Object3D } from './core/Object3D.js';
+import {Object3D, TraversalOptions} from './core/Object3D.js';
 
 export type SceneOptions = Partial<Scene>;
-
-type TraversalOptions = {
-    onEnter?: (object: Object3D) => void;
-    onLeave?: (object: Object3D) => void;
-}
 
 export class Scene {
     nodes: Object3D[];
@@ -20,16 +15,8 @@ export class Scene {
 
     traverse(options: TraversalOptions) {
         for (const node of this.nodes) {
-            this.traverseNode(node, options);
+            node.traverse(options)
         }
-    }
-
-    private traverseNode(object: Object3D, options: TraversalOptions) {
-        options?.onEnter?.(object);
-        for (const child of object.children) {
-            this.traverseNode(child, options);
-        }
-        options?.onLeave?.(object)
     }
 
     findNodesByName(name: string) {

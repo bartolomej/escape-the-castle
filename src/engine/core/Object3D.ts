@@ -2,6 +2,12 @@ import { vec3, mat4, quat } from 'gl-matrix';
 import {Mesh} from "./Mesh";
 
 export type Object3DOptions = Partial<Omit<Object3D, "parent">>
+
+export type TraversalOptions = {
+    onEnter?: (object: Object3D) => void;
+    onLeave?: (object: Object3D) => void;
+}
+
 export class Object3D {
     translation: vec3;
     rotation: quat;
@@ -41,6 +47,17 @@ export class Object3D {
             child.parent = this;
         }
         this.parent = null;
+    }
+
+    /**
+     * Traverses the current node and all it's descendants.
+     */
+    traverse(options: TraversalOptions) {
+        options?.onEnter?.(this);
+        for (const child of this.children) {
+            child.traverse(options);
+        }
+        options?.onLeave?.(this)
     }
 
     updateTransform() {
