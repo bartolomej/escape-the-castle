@@ -5,12 +5,9 @@ import * as CANNON from "cannon-es";
 import {Sphere} from "../objects/Sphere";
 import {Player} from "../objects/Player";
 import {Key} from "../objects/Key";
-import {Object3D} from "../../engine/core/Object3D";
-import {Mesh} from "../../engine/core/Mesh";
-import {SpherePrimitive} from "../../engine/geometries/SpherePrimitive";
-import {Material} from "../../engine/materials/Material";
 import {AmbientLight} from "../../engine/lights/AmbientLight";
 import {Door} from "../objects/Door";
+import {Sky} from "../objects/Sky";
 
 // https://pmndrs.github.io/cannon-es/docs/classes/Body.html#COLLIDE_EVENT_NAME
 type CollideEventData = {
@@ -90,30 +87,11 @@ export class LabyrinthScene extends GameScene {
 
         this.addNode(...labyrinthMeshScene.findNodesByNamePattern("Light"));
 
-        const sky = new Object3D({
-            name: "Sky sphere",
-            // Invert one of the axis, so that the vertices face
-            // towards the player (will not be culled).
-            scale: [1, 1, -1],
-            mesh: new Mesh({
-                primitives: [
-                    new SpherePrimitive({
-                        material: new Material({
-                            baseColorFactor: [0.2, 0.5, 0.6, 0.2],
-                        }),
-                        radius: 20,
-                        subdivisionsAxis: 10,
-                        subdivisionsHeight: 10
-                    })
-                ]
-            })
-        });
-
-        this.addNode(sky)
+        this.addNode(new Sky())
 
         this.addNode(new AmbientLight({
-            color: [255, 255, 255],
-            intensity: 0.3
+            color: [45, 80, 160],
+            intensity: 0.2
         }))
 
         const labyrinthMesh = labyrinthMeshScene.findNodesByNamePattern("Wall")[0];

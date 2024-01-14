@@ -9,7 +9,7 @@ export class TextureSampler {
     wrapT: number;
     wrapS: number;
 
-    constructor(options?: TextureSamplerOptions) {
+    constructor(options: TextureSamplerOptions = {}) {
         this.mag = options.mag || 9729;
         this.min = options.min || 9729;
         this.wrapS = options.wrapS || 10497;

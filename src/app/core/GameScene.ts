@@ -19,8 +19,10 @@ export class GameScene extends Scene {
     public async start(): Promise<void> {
         for (const node of this.nodes) {
             if (node instanceof GameObject) {
-                await node.start()
-                this.world.addBody(node.body);
+                await node.start();
+                if (node.body) {
+                    this.world.addBody(node.body);
+                }
             }
         }
     }
