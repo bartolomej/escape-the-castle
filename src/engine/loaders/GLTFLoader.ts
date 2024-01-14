@@ -13,7 +13,7 @@ import {BufferView} from "../core/BufferView";
 import {Accessor} from "../core/Accessor";
 import {Camera} from "../cameras/Camera";
 import {PointLight} from "../lights/PointLight";
-import {quat, vec3} from 'gl-matrix';
+import {mat3, quat, vec3} from 'gl-matrix';
 
 // This class loads all GLTF resources and instantiates
 // the corresponding classes. Keep in mind that it loads
@@ -184,6 +184,7 @@ export class GLTFLoader {
             if (pbr.baseColorTexture !== undefined) {
                 options.baseColorTexture = await this.loadTexture(pbr.baseColorTexture.index);
                 options.baseColorTexCoord = pbr.baseColorTexture.texCoord;
+                options.baseColorTransform = this.getTextureTransform(pbr.baseColorTexture);
             }
             if (pbr.metallicRoughnessTexture !== undefined) {
                 options.metallicRoughnessTexture = await this.loadTexture(pbr.metallicRoughnessTexture.index);
@@ -219,6 +220,36 @@ export class GLTFLoader {
         const material = new Material(options);
         this.cache.set(gltfSpec, material);
         return material;
+    }
+
+    private getTextureTransform(textureWrapper: any): mat3 {
+        const gltfTransform = textureWrapper.extensions?.KHR_texture_transform;
+        const resultTransform = mat3.create();
+
+        if (!gltfTransform) {
+            return resultTransform;
+        }
+
+        let scale = mat3.create();
+        if (gltfTransform.scale) {
+            mat3.fromScaling(scale, gltfTransform.scale);
+        }
+
+        let translation = mat3.create();
+        if (gltfTransform.offset) {
+            mat3.fromTranslation(translation, gltfTransform.offset);
+        }
+
+        let rotation = mat3.create();
+        if (gltfTransform.rotation) {
+            mat3.fromRotation(rotation, gltfTransform.rotation);
+        }
+
+        mat3.multiply(resultTransform, resultTransform, scale);
+        mat3.multiply(resultTransform, resultTransform, translation);
+        mat3.multiply(resultTransform, resultTransform, rotation);
+
+        return resultTransform;
     }
 
     async loadMesh(nameOrIndex: string | number): Promise<Mesh> {

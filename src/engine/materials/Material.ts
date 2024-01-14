@@ -1,12 +1,15 @@
-import { vec3, vec4 } from 'gl-matrix';
+import {mat3, vec3, vec4} from 'gl-matrix';
 import {Texture} from "../textures/Texture";
 
 export type MaterialOptions = Partial<Material>;
 
 export class Material {
+    // TODO: Should we move these fields (tex coords, factor, transform) into a texture class?
     baseColorTexture: Texture;
     baseColorTexCoord: number;
     baseColorFactor: vec4;
+    // TODO: For now this is only defined for base color, but it should apply to other material textures as well
+    baseColorTransform: mat3;
 
     metallicRoughnessTexture: Texture;
     metallicRoughnessTexCoord: number;
@@ -35,6 +38,7 @@ export class Material {
         this.baseColorFactor = options.baseColorFactor
             ? vec4.clone(options.baseColorFactor)
             : vec4.fromValues(1, 1, 1, 1);
+        this.baseColorTransform = options.baseColorTransform ?? mat3.create();
 
         this.metallicRoughnessTexture = options.metallicRoughnessTexture || null;
         this.metallicRoughnessTexCoord = options.metallicRoughnessTexCoord || 0;
