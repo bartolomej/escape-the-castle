@@ -21,6 +21,7 @@ type CollideEventData = {
 
 export class LabyrinthScene extends GameScene {
     private keys: Key[];
+    private winDoor: Door;
     private player: Player;
 
     async start(): Promise<void> {
@@ -48,9 +49,15 @@ export class LabyrinthScene extends GameScene {
         const wallMaterial = new CANNON.Material();
         const playerMaterial = new CANNON.Material();
 
-        this.addNode(new Door(door, {
+        this.winDoor = (new Door(door, {
             physicsMaterial: wallMaterial
         }));
+
+        this.addNode(this.winDoor);
+    
+
+        const upperBound = { x: 7.042649269104004, y: 0.7042649374047656, z: 7.042649269104004 }
+        const lowerBound = { x: -7.042649269104004, y: 0, z: -7.042649269104004 };
 
         const keyScale = 0.05;
         // The logic shouldn't assume how many keys there are in total.
@@ -59,7 +66,22 @@ export class LabyrinthScene extends GameScene {
             // Every time we reuse a mesh instance, we must clone it.
             new Key(keyMesh.clone(), {
                 physicsMaterial: propMaterial,
-                translation: [1, 3, 0],
+                translation: [1,3,1],
+                //translation: [this.getRandomCoordinate(upperBound.x, lowerBound.x), 0.2, this.getRandomCoordinate(upperBound.z, lowerBound.z)],
+                rotation: [0, 0, 0, 0],
+                scale: [keyScale, keyScale, keyScale]
+            }),
+            new Key(keyMesh.clone(), {
+                physicsMaterial: propMaterial,
+                translation: [1,3,1],
+                //translation: [this.getRandomCoordinate(upperBound.x, lowerBound.x), 0.2, this.getRandomCoordinate(upperBound.z, lowerBound.z)],
+                rotation: [0, 0, 0, 0],
+                scale: [keyScale, keyScale, keyScale]
+            }),
+            new Key(keyMesh.clone(), {
+                physicsMaterial: propMaterial,
+                translation: [1,3,1],
+                //translation: [this.getRandomCoordinate(upperBound.x, lowerBound.x), 0.2, this.getRandomCoordinate(upperBound.z, lowerBound.z)],
                 rotation: [0, 0, 0, 0],
                 scale: [keyScale, keyScale, keyScale]
             })
@@ -127,9 +149,27 @@ export class LabyrinthScene extends GameScene {
         const keyTarget = this.keys.find(key => key.body === event.body);
         const isCollisionWithKey = keyTarget !== undefined;
 
+        const doorTarget = this.winDoor.body === event.body;
+
         if (isCollisionWithKey) {
             console.log("Player collided with key: ", keyTarget)
+            this.player.keysFound++;
             keyTarget.despawn();
         }
+
+        if (doorTarget) {
+            console.log("Player collided with door: ", doorTarget)
+
+            if (this.player.winCondition === true) {
+                console.log("You win!");
+                alert("You win!");
+            }
+        }
+    }
+
+    getRandomCoordinate(upperSt: number, lowerSt: number) {
+        const randomSt = Math.random() * (upperSt - lowerSt) + lowerSt;
+
+        return randomSt;
     }
 }

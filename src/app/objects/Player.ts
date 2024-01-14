@@ -14,6 +14,7 @@ export class Player extends Sphere {
     public camera: PerspectiveCamera;
 
     keysFound: number;
+    winCondition: boolean;
 
     constructor(options: PlayerOptions) {
         super({
@@ -31,6 +32,8 @@ export class Player extends Sphere {
         this.addChild(this.camera);
 
         this.keysFound = 0;
+        this.winCondition = false;
+
     }
 
 
@@ -38,12 +41,6 @@ export class Player extends Sphere {
         await super.start();
 
         this.controls = new PlayerControls(this.body);
-
-        
-        if (this.keysFound === 3) {
-            console.log("You won!");
-            this.keysFound = 0;
-        }
     }
 
     update(dt: number, time: number): void {
@@ -52,6 +49,12 @@ export class Player extends Sphere {
         this.camera.rotation = quat.fromEuler(quat.create(), x, y, z);
         this.camera.updateMatrix();
         super.update(dt, time);
+
+        if (this.keysFound === 3) {
+            console.log("You have the win condition!");
+            this.keysFound = 0;
+            this.winCondition = true;
+        }
     }
 }
 
