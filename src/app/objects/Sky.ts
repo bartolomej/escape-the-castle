@@ -29,7 +29,7 @@ export class Sky extends GameObject {
 
     async start(): Promise<void> {
         // A hack to make the sky brighter.
-        const brightnessFactor = 5;
+        const brightnessFactor = 3;
         this.mesh.setMaterial(new Material({
             baseColorFactor: [brightnessFactor, brightnessFactor, brightnessFactor, brightnessFactor],
             baseColorTexture: new Texture({
