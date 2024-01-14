@@ -11,6 +11,7 @@ import {LabyrinthScene} from "./scenes/LabyrinthScene";
 import {Player} from "./objects/Player";
 
 const useTestScene = false;
+const showDebugControls = false;
 
 class App extends WebGlApplication {
 
@@ -28,7 +29,7 @@ class App extends WebGlApplication {
     rotationZ: 0
   }
 
-  async start() {
+  async loadScene() {
     if (useTestScene) {
       this.scene = new TestScene();
     } else {
@@ -37,6 +38,7 @@ class App extends WebGlApplication {
 
     // Loads the scene nodes
     await this.scene.start();
+
     // Log scene in console for easier debugging.
     console.log(this.scene);
 
@@ -49,8 +51,6 @@ class App extends WebGlApplication {
 
     this.renderer = new WebGLRenderer(this.gl, {clearColor: [1,1,1,1]});
     this.renderer.prepareScene(this.scene);
-
-    super.start();
   }
 
   update (dt:number, time:number) {
@@ -102,12 +102,7 @@ class App extends WebGlApplication {
 
 }
 
-async function main () {
-  const canvas = document.querySelector('canvas');
-  const app = new App(canvas);
-
-  await app.start()
-
+async function setupDebugControls (app: App) {
   const pane = new Pane();
 
   const cameraFolder = pane.addFolder({title: "Camera"})
@@ -150,13 +145,32 @@ async function main () {
   });
 }
 
-//document.addEventListener('DOMContentLoaded', main);
+document.addEventListener('DOMContentLoaded', async () => {
 
-document.addEventListener('DOMContentLoaded', () => {
+  const startButton = document.getElementById("start-game");
+  const startScreen = document.getElementById("start-screen");
+  const canvas = document.querySelector('canvas');
 
-  document.getElementById("startGame").addEventListener("click", () => {
 
-    document.getElementById("main-menu").style.display = "none";
-    main();
+  const app = new App(canvas);
+
+  canvas.addEventListener("click", () => app.enableCamera())
+
+  startButton.innerText = "Loading...";
+  startButton.toggleAttribute("disabled");
+  await app.loadScene();
+  startButton.innerText = "Start";
+  startButton.toggleAttribute("disabled");
+
+  startButton.addEventListener("click", () => {
+    startScreen.style.display = "none";
+    canvas.style.display = 'unset';
+
+    app.start();
+    app.enableCamera();
+
+    if (showDebugControls) {
+      setupDebugControls(app);
+    }
   })
 });

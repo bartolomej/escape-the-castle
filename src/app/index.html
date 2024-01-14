@@ -21,32 +21,29 @@
 
     <link rel="icon" href="assets/images/drawing.svg">
     <link rel="icon" href="icon.png">
+
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-    <div class="overlay">
-        <div id="ui" style="display: none;"></div>
-        <div id="main-menu">
-            <div style="display: block;">
-                <h1>Escape the castle</h1>
-                <h3 id="startGame">Play</h3>
-            </div>
-        </div>
-        <div id="end" style="display: none;">
-            <h2>Congratulations</h2>
-            <div>
-                <p>Text!</p>
-                <div>
-                    <button>Exit</button>
-                </div>
-            </div>
-        </div>
+    <div class="ui-root" id="start-screen">
+        <img class="logo" src="logo.png" />
+
+        <img class="background" src="background.png" />
+
+        <p>You step into the armor of a valiant knight on a heroic quest. Your mission is to navigate the maze-like castle, find all the hidden keys, and unlock the door to rescue the princess from her confines.</p>
+
+        <p>Use W, A, S, D keys for movement and mouse for orientation.</p>
+
+        <br />
+
+        <button id="start-game">Start</button>
     </div>
-    <div class="fullscreen">
-        <canvas>
-            This website won't work in your browser. Please upgrade to a newer browser.
-        </canvas>
-    </div>
+
+    <!-- Canvas should be hidden until the player starts the game. -->
+    <canvas style="display: none">
+        This website won't work in your browser. Please upgrade to a newer browser.
+    </canvas>
 
 </body>
 </html>
