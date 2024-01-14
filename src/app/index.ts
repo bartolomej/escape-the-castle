@@ -9,6 +9,7 @@ import {TestScene} from "./scenes/TestScene";
 import {GameScene} from "./core/GameScene";
 import {LabyrinthScene} from "./scenes/LabyrinthScene";
 import {Player} from "./objects/Player";
+import {UiController} from "./UiController";
 
 const useTestScene = false;
 const showDebugControls = false;
@@ -29,7 +30,7 @@ class App extends WebGlApplication {
     rotationZ: 0
   }
 
-  async load() {
+  async start() {
     if (useTestScene) {
       this.scene = new TestScene();
     } else {
@@ -37,7 +38,7 @@ class App extends WebGlApplication {
     }
 
     // Loads the scene nodes
-    await this.scene.load();
+    await this.scene.start();
 
     // Log scene in console for easier debugging.
     console.log(this.scene);
@@ -51,6 +52,8 @@ class App extends WebGlApplication {
 
     this.renderer = new WebGLRenderer(this.gl, {clearColor: [1,1,1,1]});
     this.renderer.prepareScene(this.scene);
+
+    super.start();
   }
 
   update (dt:number, time:number) {
@@ -146,31 +149,32 @@ async function setupDebugControls (app: App) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  const uiController = UiController.create();
+  const app = new App(uiController.canvas);
 
-  const startButton = document.getElementById("start-game");
-  const startScreen = document.getElementById("start-screen");
-  const canvas = document.querySelector('canvas');
+  uiController.showStartScreen();
+  uiController.canvas.addEventListener("click", () => app.enableCamera())
 
+  async function startGame() {
+    app.stop();
 
-  const app = new App(canvas);
+    // For now just re-load the whole scene,
+    // as our game initialization logic is tightly coupled to the loading logic.
+    // TODO: Separate loading from initialization
+    uiController.setIsStartScreenLoading(true);
+    await app.start();
+    uiController.setIsStartScreenLoading(false);
 
-  canvas.addEventListener("click", () => app.enableCamera())
+    uiController.showGameScreen();
 
-  startButton.innerText = "Loading...";
-  startButton.toggleAttribute("disabled");
-  await app.load();
-  startButton.innerText = "Start";
-  startButton.toggleAttribute("disabled");
-
-  startButton.addEventListener("click", () => {
-    startScreen.style.display = "none";
-    canvas.style.display = 'unset';
-
-    app.start();
     app.enableCamera();
 
     if (showDebugControls) {
       setupDebugControls(app);
     }
-  })
+  }
+
+  uiController.startButton.addEventListener("click", () => startGame());
+  uiController.restartButton.addEventListener("click", () => startGame());
+  uiController.startOverButton.addEventListener("click", () => startGame());
 });

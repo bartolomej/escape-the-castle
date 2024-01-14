@@ -8,6 +8,7 @@ import {Key} from "../objects/Key";
 import {AmbientLight} from "../../engine/lights/AmbientLight";
 import {Door} from "../objects/Door";
 import {Sky} from "../objects/Sky";
+import {UiController} from "../UiController";
 
 // https://pmndrs.github.io/cannon-es/docs/classes/Body.html#COLLIDE_EVENT_NAME
 type CollideEventData = {
@@ -21,7 +22,7 @@ export class LabyrinthScene extends GameScene {
     private winDoor: Door;
     private player: Player;
 
-    async load(): Promise<void> {
+    async start(): Promise<void> {
         const labyrinthMeshLoader = new GLTFLoader();
         await labyrinthMeshLoader.load('./models/level.gltf');
         const labyrinthMeshScene = await labyrinthMeshLoader.loadScene(labyrinthMeshLoader.defaultScene);
@@ -105,16 +106,20 @@ export class LabyrinthScene extends GameScene {
         })
         this.addNode(this.player);
 
-        await super.load();
+        await super.start();
 
         this.player.body.addEventListener(
             CANNON.Body.COLLIDE_EVENT_NAME,
             this.handlePlayerCollision.bind(this)
         );
-    }
 
-    start() {
-        this.timer(this.player);
+        this.scheduleGameLostIn(60);
+
+        const uiController = UiController.create()
+        uiController.setKeysFound({
+            foundKeys: 0,
+            totalKeys: this.keys.length
+        })
     }
 
     private getRandomKeyWorldPosition(worldAabb: CANNON.AABB): CANNON.Vec3 {
@@ -141,6 +146,8 @@ export class LabyrinthScene extends GameScene {
 
 
     private handlePlayerCollision(event: CollideEventData) {
+        const uiController = UiController.create();
+
         const keyTarget = this.keys.find(key => key.body === event.body);
         const doorTarget = this.winDoor.body === event.body;
 
@@ -148,26 +155,29 @@ export class LabyrinthScene extends GameScene {
             console.log("Player collided with key: ", keyTarget)
             keyTarget.despawn();
             this.player.pickupKey(keyTarget);
+            uiController.setKeysFound({
+                foundKeys: this.player.foundKeys.length,
+                totalKeys: this.keys.length
+            })
         }
 
         const hasWon = this.player.foundKeys.length === this.keys.length;
         if (doorTarget && hasWon) {
-            console.log("Player collided with door: ", doorTarget)
-            alert("You win!");
             this.player.controls.disable();
+            uiController.showWinScreen()
         }
     }
 
-    timer( player: Player){
-        var sec = 30;
-        var timer = setInterval(function(){
-            console.log(sec);
-            sec--;
-            if (sec < 0) {
+    scheduleGameLostIn(maxGameDurationInS: number){
+        const uiController = UiController.create()
+        let secondsLeft = maxGameDurationInS;
+        const timer = setInterval(() => {
+            secondsLeft--;
+            uiController.setTimeLeft(secondsLeft);
+            if (secondsLeft <= 0) {
                 clearInterval(timer);
-                alert("You lose!");
-                player.controls.disable();
-                this.gameEnd = true;
+                this.player.controls.disable();
+                uiController.showLoseScreen();
             }
         }, 1000);
     }

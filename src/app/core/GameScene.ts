@@ -14,9 +14,10 @@ export abstract class GameScene extends Scene {
     }
 
     /**
-     * Asset loading stage.
+     * Asset loading and state initialization.
+     * TODO: Separate loading and initialization stages.
      */
-    public async load(): Promise<void> {
+    public async start(): Promise<void> {
         const loadPromises: Promise<void>[] = [];
 
         this.traverse({
@@ -39,11 +40,6 @@ export abstract class GameScene extends Scene {
             }
         })
     }
-
-    /**
-     * State initialization just before game loop is started.
-     */
-    public abstract start(): void;
 
     /**
      * Update internal object state before rendering.

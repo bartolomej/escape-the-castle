@@ -3,6 +3,7 @@ export abstract class WebGlApplication {
   public readonly canvas: HTMLCanvasElement;
   public gl: WebGL2RenderingContext;
   private t0: number;
+  private animationFrame: number;
 
   constructor (canvas: HTMLCanvasElement, glOptions?: WebGLContextAttributes) {
     this.internalUpdate = this.internalUpdate.bind(this);
@@ -30,7 +31,7 @@ export abstract class WebGlApplication {
     this.update(dt, t);
     this.render(dt, t);
     this.t0 = t;
-    requestAnimationFrame(this.internalUpdate);
+    this.animationFrame = requestAnimationFrame(this.internalUpdate);
   }
 
   private internalResize () {
@@ -61,7 +62,11 @@ export abstract class WebGlApplication {
    */
   public start () {
     this.updateAspectRatio();
-    requestAnimationFrame(this.internalUpdate);
+    this.animationFrame = requestAnimationFrame(this.internalUpdate);
+  }
+
+  public stop () {
+    cancelAnimationFrame(this.animationFrame);
   }
 
   /**

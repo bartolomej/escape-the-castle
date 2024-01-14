@@ -37,7 +37,42 @@
 
         <br />
 
-        <button id="start-game">Start</button>
+        <button id="start-button">Start</button>
+    </div>
+
+    <div class="ui-root" id="win-screen">
+        <img class="logo" src="logo.png" />
+
+        <img class="background" src="background.png" />
+
+        <p>The princess is saved!</p>
+
+        <br />
+
+        <button id="start-over-button">Start over</button>
+    </div>
+
+    <div class="ui-root" id="lose-screen">
+        <img class="logo" src="logo.png" />
+
+        <img class="background" src="background.png" />
+
+        <p>You lost!</p>
+
+        <br />
+
+        <button id="restart-button">Restart</button>
+    </div>
+
+    <div id="game-status-panel">
+        <div>
+            <b>Time left:</b>
+            <span id="time-left-value"></span>
+        </div>
+        <div>
+            <b>Keys found:</b>
+            <span id="keys-found-value"></span>
+        </div>
     </div>
 
     <!-- Canvas should be hidden until the player starts the game. -->
