@@ -1,16 +1,32 @@
-# Computer Graphics final project
+![](./banner.png)
 
-This app has two top level modules:
-- `engine`: 3D rendering engine that uses WebGL
-- `app`: application specific logic
+A simple puzzle game built from scratch in WebGL 2.
 
-Engine module has a similar API to some other well known 3D rendering libraries like [Three.js](https://threejs.org/).
+## Usage
 
-App module also has a few useful classes (located in [`app/sound`](./src/app/sound) module) that are used for retrieving, playing and analyzing sound data.
+Install dependencies:
+```shell
+npm i
+```
+
+Run locally in dev mode:
+
+```shell
+npm run serve 
+```
+
+Build for production:
+
+```shell
+npm run build
+```
+
+Run the compiled prod assets using a HTTP file server (e.g. https://github.com/vercel/serve):
+
+```shell
+serve ./dist
+```
 
 ## Credits
 
-A great part of the graphics engine source code was taken, modified and extended
-from [UL-FRI-LGM/webgl2-examples](https://github.com/UL-FRI-LGM/webgl2-examples).
-
-
+Part of the graphics engine source code is based on: [UL-FRI-LGM/webgl2-examples](https://github.com/UL-FRI-LGM/webgl2-examples).
