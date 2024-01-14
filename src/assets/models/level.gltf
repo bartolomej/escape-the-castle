@@ -20,6 +20,16 @@
 						1,
 						1
 					],
+					"intensity":1.1936620731892151,
+					"type":"point",
+					"name":"Light.002"
+				},
+				{
+					"color":[
+						1,
+						1,
+						1
+					],
 					"intensity":63.66197723675813,
 					"type":"point",
 					"name":"Light"
@@ -45,7 +55,8 @@
 				0,
 				1,
 				2,
-				25
+				3,
+				26
 			]
 		}
 	],
@@ -54,6 +65,25 @@
 			"extensions":{
 				"KHR_lights_punctual":{
 					"light":0
+				}
+			},
+			"name":"Light.002",
+			"rotation":[
+				-0.28416627645492554,
+				0.7269423007965088,
+				0.34203392267227173,
+				0.5232754945755005
+			],
+			"translation":[
+				0.452207088470459,
+				5.903861999511719,
+				4.240993499755859
+			]
+		},
+		{
+			"extensions":{
+				"KHR_lights_punctual":{
+					"light":1
 				}
 			},
 			"name":"Light",
@@ -81,7 +111,7 @@
 		{
 			"extensions":{
 				"KHR_lights_punctual":{
-					"light":1
+					"light":2
 				}
 			},
 			"name":"Light.001",
@@ -103,7 +133,7 @@
 		},
 		{
 			"children":[
-				3
+				4
 			],
 			"name":"Back_low"
 		},
@@ -113,7 +143,7 @@
 		},
 		{
 			"children":[
-				5
+				6
 			],
 			"name":"BackPlank_low",
 			"scale":[
@@ -128,7 +158,7 @@
 		},
 		{
 			"children":[
-				7
+				8
 			],
 			"name":"Bolt_low"
 		},
@@ -138,7 +168,7 @@
 		},
 		{
 			"children":[
-				9
+				10
 			],
 			"name":"Bricks_low"
 		},
@@ -148,7 +178,7 @@
 		},
 		{
 			"children":[
-				11
+				12
 			],
 			"name":"Door01_low"
 		},
@@ -158,7 +188,7 @@
 		},
 		{
 			"children":[
-				13
+				14
 			],
 			"name":"Door02_low"
 		},
@@ -168,7 +198,7 @@
 		},
 		{
 			"children":[
-				15
+				16
 			],
 			"name":"Handle_low"
 		},
@@ -178,7 +208,7 @@
 		},
 		{
 			"children":[
-				17
+				18
 			],
 			"name":"Hindge_low"
 		},
@@ -188,7 +218,7 @@
 		},
 		{
 			"children":[
-				19
+				20
 			],
 			"name":"Knob_low"
 		},
@@ -198,22 +228,22 @@
 		},
 		{
 			"children":[
-				21
+				22
 			],
 			"name":"Metal_low"
 		},
 		{
 			"children":[
-				4,
-				6,
-				8,
-				10,
-				12,
-				14,
-				16,
-				18,
-				20,
-				22
+				5,
+				7,
+				9,
+				11,
+				13,
+				15,
+				17,
+				19,
+				21,
+				23
 			],
 			"name":"Low",
 			"scale":[
@@ -224,13 +254,13 @@
 		},
 		{
 			"children":[
-				23
+				24
 			],
 			"name":"RootNode"
 		},
 		{
 			"children":[
-				24
+				25
 			],
 			"name":"Door",
 			"scale":[

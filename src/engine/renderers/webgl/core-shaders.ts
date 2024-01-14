@@ -89,7 +89,6 @@ void main() {
             light = uLightColor[i] * directionalIntensity;
         }
         
-        // TODO: Point light doesn't work as expected
         if (lightType == LIGHT_TYPE_POINT) {
             float distanceToLight = length(vSurfaceToLight[i]);
             float attenuation = 1.0 / (distanceToLight * distanceToLight);
