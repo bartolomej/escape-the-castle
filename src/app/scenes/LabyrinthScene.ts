@@ -94,12 +94,6 @@ export class LabyrinthScene extends GameScene {
 
         this.addNode(wall);
 
-        this.addNode(new Sphere({
-            radius: 0.1,
-            physicsMaterial: propMaterial,
-            translation: [2.3, 2, 2],
-        }));
-
         this.player = new Player({
             physicsMaterial: playerMaterial,
             translation: [0, 2, 0],
@@ -113,7 +107,7 @@ export class LabyrinthScene extends GameScene {
             this.handlePlayerCollision.bind(this)
         );
 
-        this.scheduleGameLostIn(60);
+        this.scheduleGameLostIn(300);
 
         const uiController = UiController.create()
         uiController.setKeysFound({
