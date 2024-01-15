@@ -108,7 +108,7 @@ export class LabyrinthScene extends GameScene {
             this.handlePlayerCollision.bind(this)
         );
 
-        this.scheduleGameLostIn(5);
+        this.scheduleGameLostIn(300);
 
         const uiController = UiController.create()
         uiController.setKeysFound({
