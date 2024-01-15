@@ -52,7 +52,7 @@ export class Sky extends GameObject {
             let image = new Image();
             image.addEventListener('load', e => resolve(image));
             image.addEventListener('error', reject);
-            image.src = new URL(url, window.location.origin).toString();
+            image.src = new URL(url, window.location.href).toString();
         });
     }
 

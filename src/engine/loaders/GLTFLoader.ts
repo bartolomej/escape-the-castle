@@ -59,7 +59,7 @@ export class GLTFLoader {
     }
 
     async load(url: string) {
-        this.gltfUrl = new URL(url, window.location.origin);
+        this.gltfUrl = new URL(url, window.location.href);
         this.gltf = await this.fetchJson(url);
         this.defaultScene = this.gltf.scene || 0;
     }
