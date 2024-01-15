@@ -2,13 +2,13 @@ import {GameScene} from "../core/GameScene";
 import {GLTFLoader} from "../../engine/loaders/GLTFLoader";
 import {Wall} from "../objects/Wall";
 import * as CANNON from "cannon-es";
-import {Sphere} from "../objects/Sphere";
 import {Player} from "../objects/Player";
 import {Key} from "../objects/Key";
 import {AmbientLight} from "../../engine/lights/AmbientLight";
 import {Door} from "../objects/Door";
 import {Sky} from "../objects/Sky";
 import {UiController} from "../UiController";
+import Timeout = NodeJS.Timeout;
 
 // https://pmndrs.github.io/cannon-es/docs/classes/Body.html#COLLIDE_EVENT_NAME
 type CollideEventData = {
@@ -21,6 +21,7 @@ export class LabyrinthScene extends GameScene {
     private keys: Key[];
     private winDoor: Door;
     private player: Player;
+    private gameLostTimer: Timeout;
 
     async start(): Promise<void> {
         const labyrinthMeshLoader = new GLTFLoader();
@@ -107,7 +108,7 @@ export class LabyrinthScene extends GameScene {
             this.handlePlayerCollision.bind(this)
         );
 
-        this.scheduleGameLostIn(300);
+        this.scheduleGameLostIn(5);
 
         const uiController = UiController.create()
         uiController.setKeysFound({
@@ -159,17 +160,18 @@ export class LabyrinthScene extends GameScene {
         if (doorTarget && hasWon) {
             this.player.controls.disable();
             uiController.showWinScreen()
+            clearInterval(this.gameLostTimer)
         }
     }
 
     scheduleGameLostIn(maxGameDurationInS: number){
         const uiController = UiController.create()
         let secondsLeft = maxGameDurationInS;
-        const timer = setInterval(() => {
+        this.gameLostTimer = setInterval(() => {
             secondsLeft--;
             uiController.setTimeLeft(secondsLeft);
             if (secondsLeft <= 0) {
-                clearInterval(timer);
+                clearInterval(this.gameLostTimer);
                 this.player.controls.disable();
                 uiController.showLoseScreen();
             }
