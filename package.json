@@ -1,7 +1,7 @@
 {
-  "name": "ts-frontend-starter",
+  "name": "escape-the-castle",
   "version": "1.0.0",
-  "description": "Front end starter template with TypeScript, Babel, Webpack, Jest configurations.",
+  "description": "You step into the armor of a valiant knight on a heroic quest. Your mission is to navigate the maze-like castle, find all the hidden keys, and unlock the door to rescue the princess from her confines.",
   "main": "index.js",
   "scripts": {
     "watch": "webpack --watch",
@@ -9,6 +9,7 @@
     "deploy": "npm run build && node deploy.js",
     "build": "webpack --config webpack.prod.js",
     "start": "npm run serve && npm run watch",
+    "serve-dist": "npx serve ./dist",
     "serve": "webpack-dev-server --open --config webpack.dev.js"
   },
   "keywords": [

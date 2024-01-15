@@ -2,6 +2,10 @@
 
 A simple puzzle game built from scratch in WebGL 2.
 
+[Play it now ↗️](https://bartolomej.github.io/escape-the-castle/)
+
+[Download the game ⤵️](https://github.com/bartolomej/escape-the-castle/releases)
+
 ## Usage
 
 Install dependencies:
